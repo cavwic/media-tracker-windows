@@ -3,6 +3,7 @@ import { publicApiFetch as fetch } from "./public-api-client.mjs";
 import assert from "node:assert/strict";
 import path from "node:path";
 import os from "node:os";
+import { createServer } from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile, rm, stat, symlink } from "node:fs/promises";
@@ -10,6 +11,18 @@ import { chromium } from "playwright";
 import { deletePersonDirectory, resolvePersonDeletionTarget } from "../lib/person-delete.mjs";
 
 const projectRoot = path.resolve(import.meta.dirname, "..");
+
+async function availablePort() {
+  const probe = createServer();
+  try {
+    const listening = once(probe, "listening");
+    probe.listen(0, "127.0.0.1");
+    await listening;
+    return probe.address().port;
+  } finally {
+    if (probe.listening) await new Promise((resolve, reject) => probe.close((error) => error ? reject(error) : resolve()));
+  }
+}
 
 function waitForServiceStartup(child, timeoutMs = 10_000) {
   child.stdout.setEncoding("utf8");
@@ -113,7 +126,7 @@ test("person deletion rejects junctions both in the target path and below it", a
 
 test("delete API and two-step UI require explicit choices, honor cancellation, and preserve or delete files", async () => {
   await withFixture(async (root) => {
-    const port = 48_000 + Math.floor(Math.random() * 5_000);
+    const port = await availablePort();
     const origin = `http://127.0.0.1:${port}`;
     const child = spawn(process.execPath, ["server.mjs"], {
       cwd: projectRoot,

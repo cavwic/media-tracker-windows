@@ -3,9 +3,22 @@ import { publicApiFetch as fetch } from "./public-api-client.mjs";
 import assert from "node:assert/strict";
 import os from "node:os";
 import path from "node:path";
+import { createServer } from "node:http";
 import { once } from "node:events";
 import { spawn } from "node:child_process";
 import { mkdtemp, rm, stat, readFile } from "node:fs/promises";
+
+async function availablePort() {
+  const probe = createServer();
+  try {
+    const listening = once(probe, "listening");
+    probe.listen(0, "127.0.0.1");
+    await listening;
+    return probe.address().port;
+  } finally {
+    if (probe.listening) await new Promise((resolve, reject) => probe.close((error) => error ? reject(error) : resolve()));
+  }
+}
 
 function waitForServerReady(child, timeoutMs = 10_000) {
   return new Promise((resolve, reject) => {
@@ -40,7 +53,7 @@ function waitForServerReady(child, timeoutMs = 10_000) {
 
 test("sync APIs queue every person, report progress, and persist receipts", async () => {
   const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "media-tracker-api-"));
-  const port = 43_000 + Math.floor(Math.random() * 5_000);
+  const port = await availablePort();
   const origin = `http://127.0.0.1:${port}`;
   const child = spawn(process.execPath, ["server.mjs"], {
     cwd: path.resolve(import.meta.dirname, ".."),

@@ -174,12 +174,15 @@ test("headings, person names, notes, paths and sidebar blank surfaces can all dr
 test("interactive descendants, text editing, file controls and scrollbar rails never drag", async (t) => {
   const { page, nativeCalls } = await fixture(t, { width: 1288, height: 907, personCount: 14 });
   await page.evaluate(() => {
-    const region = document.querySelector("#people-list .person-card");
+    // Keep synthetic controls on the real scroll/drag surface, but outside
+    // the people list: active polling correctly reconciles every card to its
+    // application template and must not own or remove this test-only sample.
+    const region = document.querySelector("#people-scroll-region");
     const sample = document.createElement("div");
     sample.id = "fixture-interactions";
     sample.style.cssText = "display:flex;gap:4px;flex-wrap:wrap";
     sample.innerHTML = '<a href="#">link</a><button><span>file name</span></button><label><input type="radio" name="fixture-radio">radio</label><input value="edit"><textarea>edit</textarea><select><option>select</option></select><details><summary>summary</summary>record</details><div contenteditable="true">editable</div><div role="menu"><span>menu body</span></div><video controls></video>';
-    region.prepend(sample);
+    region.append(sample);
   });
   const targets = ["#fixture-interactions a", "#fixture-interactions button span", "#fixture-interactions label", "#fixture-interactions input[value]", "#fixture-interactions textarea", "#fixture-interactions select", "#fixture-interactions summary", '#fixture-interactions [contenteditable]', '#fixture-interactions [role="menu"]', "#fixture-interactions video", '.person-card .open-person-folder'];
   for (const selector of targets) {

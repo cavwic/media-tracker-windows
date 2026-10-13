@@ -125,6 +125,11 @@ test("delete API and two-step UI require explicit choices, honor cancellation, a
       const started = await waitForServiceStartup(child);
       assert.match(started, /已启动/);
       const headers = { Origin: origin, "Content-Type": "application/json" };
+      // The server supplies the host system language, not just navigator.locale.
+      const language = await fetch(`${origin}/api/settings`, { method: "PUT", headers,
+        body: JSON.stringify({ language: "zh" }) });
+      assert.equal(language.status, 200);
+      assert.equal((await fetch(`${origin}/api/state`).then((response) => response.json())).settings.language, "zh");
       const people = [];
       for (const name of ["Keep person", "Delete person"]) {
         const response = await fetch(`${origin}/api/persons`, {

@@ -29,14 +29,20 @@ async function fixture(t) {
   t.after(() => session.dispose().catch(() => {}));
   const directory = path.dirname(session.cookieFile);
   if (process.platform === "win32") {
-    // Elevated Windows CI can assign Administrators as a new directory's
-    // default owner. This fixture specifically models a current-user-owned
-    // private session; do not relax the production reaper's ownership check.
+    // Elevated Windows CI can assign Administrators as the default owner and
+    // include extra explicit allow rules in a new directory's default DACL.
+    // Model a fully private session without relaxing the production reaper.
     const encoded = Buffer.from(directory, "utf8").toString("base64");
     const command = "$ErrorActionPreference='Stop'; "
       + `$taskPath=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encoded}')); `
       + "$taskSid=[Security.Principal.WindowsIdentity]::GetCurrent().User; "
-      + "$taskAcl=[IO.Directory]::GetAccessControl($taskPath); $taskAcl.SetOwner($taskSid); "
+      + "$taskAcl=[Security.AccessControl.DirectorySecurity]::new(); $taskAcl.SetOwner($taskSid); "
+      + "$taskAcl.SetAccessRuleProtection($true,$false); "
+      + "$taskRule=[Security.AccessControl.FileSystemAccessRule]::new($taskSid, "
+      + "[Security.AccessControl.FileSystemRights]::FullControl, "
+      + "[Security.AccessControl.InheritanceFlags]'ContainerInherit,ObjectInherit', "
+      + "[Security.AccessControl.PropagationFlags]::None, [Security.AccessControl.AccessControlType]::Allow); "
+      + "$taskAcl.AddAccessRule($taskRule); "
       + "[IO.Directory]::SetAccessControl($taskPath,$taskAcl); $taskAcl=[IO.Directory]::GetAccessControl($taskPath); "
       + "$taskAllowed=@($taskAcl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]) | "
       + "Where-Object { $_.AccessControlType -eq [Security.AccessControl.AccessControlType]::Allow } | "
@@ -49,7 +55,7 @@ async function fixture(t) {
     assert.equal(acl.owner, acl.expectedOwner, "fixture directory must be owned by the current user");
     assert.equal(acl.protected, true, "fixture directory must not inherit wider permissions");
     assert.ok(Array.isArray(acl.allowed) && acl.allowed.length > 0, "fixture must have explicit allow rules");
-    assert.ok(acl.allowed.every((sid) => sid === acl.expectedOwner), "fixture allow rules must remain current-user-only");
+    assert.ok(acl.allowed.every((sid) => sid === acl.expectedOwner), `fixture allow rules must remain current-user-only: ${JSON.stringify(acl)}`);
   }
   const markerFile = path.join(directory, "owned-session.json");
   return { dataRoot, session, directory, markerFile, loginSentinel };

@@ -164,6 +164,8 @@ test("new-person accounts default enabled and saving preserves explicit pause", 
   await page.locator("#save-person-button").click();
   await page.locator("#person-dialog").waitFor({ state: "hidden" });
   assert.equal(saveCalls(calls).at(-1).body.platforms[0].accounts[0].syncEnabled, false);
+  // Closing the draft precedes the asynchronous state refresh/card rendering.
+  await page.locator('.person-card[data-person-id="new-person"]').waitFor({ state: "visible" });
   assert.equal(await page.locator('.person-card[data-person-id="new-person"]').count(), 1);
 });
 

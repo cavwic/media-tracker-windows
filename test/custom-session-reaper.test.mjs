@@ -28,6 +28,29 @@ async function fixture(t) {
   });
   t.after(() => session.dispose().catch(() => {}));
   const directory = path.dirname(session.cookieFile);
+  if (process.platform === "win32") {
+    // Elevated Windows CI can assign Administrators as a new directory's
+    // default owner. This fixture specifically models a current-user-owned
+    // private session; do not relax the production reaper's ownership check.
+    const encoded = Buffer.from(directory, "utf8").toString("base64");
+    const command = "$ErrorActionPreference='Stop'; "
+      + `$taskPath=[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encoded}')); `
+      + "$taskSid=[Security.Principal.WindowsIdentity]::GetCurrent().User; "
+      + "$taskAcl=[IO.Directory]::GetAccessControl($taskPath); $taskAcl.SetOwner($taskSid); "
+      + "[IO.Directory]::SetAccessControl($taskPath,$taskAcl); $taskAcl=[IO.Directory]::GetAccessControl($taskPath); "
+      + "$taskAllowed=@($taskAcl.GetAccessRules($true,$true,[Security.Principal.SecurityIdentifier]) | "
+      + "Where-Object { $_.AccessControlType -eq [Security.AccessControl.AccessControlType]::Allow } | "
+      + "ForEach-Object { $_.IdentityReference.Value }); "
+      + "@{owner=$taskAcl.GetOwner([Security.Principal.SecurityIdentifier]).Value; expectedOwner=$taskSid.Value; "
+      + "protected=$taskAcl.AreAccessRulesProtected; allowed=$taskAllowed} | ConvertTo-Json -Compress";
+    const { stdout } = await promisify(execFile)("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", command],
+      { windowsHide: true, timeout: 10000 });
+    const acl = JSON.parse(stdout);
+    assert.equal(acl.owner, acl.expectedOwner, "fixture directory must be owned by the current user");
+    assert.equal(acl.protected, true, "fixture directory must not inherit wider permissions");
+    assert.ok(Array.isArray(acl.allowed) && acl.allowed.length > 0, "fixture must have explicit allow rules");
+    assert.ok(acl.allowed.every((sid) => sid === acl.expectedOwner), "fixture allow rules must remain current-user-only");
+  }
   const markerFile = path.join(directory, "owned-session.json");
   return { dataRoot, session, directory, markerFile, loginSentinel };
 }

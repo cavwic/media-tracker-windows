@@ -144,7 +144,8 @@ test("delete API and two-step UI require explicit choices, honor cancellation, a
       const stalePath = await fetch(target, { method: "DELETE", headers, body: JSON.stringify({ deleteFiles: true, expectedFolderPath: path.join(root, "old-folder") }) });
       assert.equal(stalePath.status, 409);
       browser = await chromium.launch({ headless: true });
-      const page = await browser.newPage({ viewport: { width: 1100, height: 850 } });
+      // This fixture asserts Chinese labels; do not inherit the host OS language.
+      const page = await browser.newPage({ locale: "zh-CN", viewport: { width: 1100, height: 850 } });
       await page.goto(origin);
       const personCard = (name) => page.locator(".person-card").filter({ has: page.getByRole("heading", { name, exact: true }) });
       const dialog = page.locator("#confirm-dialog");

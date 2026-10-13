@@ -41,6 +41,20 @@ jobs:
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Prepare dedicated test browser
         run: npx --no-install playwright install chromium
+      - name: Prepare pinned isolated media test tools
+        timeout-minutes: 4
+        run: |
+          @'
+          import path from 'node:path';
+          import { appendFile } from 'node:fs/promises';
+          import { installBundledDedupTools, checkDedupTools } from './lib/dedup-tools.mjs';
+          // CI explicitly prepares test-only tools; no application or system install.
+          const parentDirectory = path.join(process.env.RUNNER_TEMP, 'media-tracker-test-tools');
+          const installed = await installBundledDedupTools({ parentDirectory, signal: AbortSignal.timeout(180000) });
+          const tools = await checkDedupTools({ directory: installed.directory });
+          if (!tools.ready) throw new Error('Verified media test tools are unavailable');
+          await appendFile(process.env.GITHUB_ENV, `MEDIA_TRACKER_FFMPEG=${tools.ffmpeg}\nMEDIA_TRACKER_FFPROBE=${tools.ffprobe}\n`);
+          '@ | node --input-type=module
       - name: Check server and collectors
         run: npm run check
       - name: Check language

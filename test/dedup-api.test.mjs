@@ -8,15 +8,20 @@ import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { mkdtemp, mkdir, writeFile, readFile, rm } from "node:fs/promises";
 import { openPersonMediaIndex, clearPersonMediaIndexCache } from "../lib/person-media-index.mjs";
+import { checkDedupTools } from "../lib/dedup-tools.mjs";
 
 test("one-click dedup API accepts confirmation only, preserves bindings, and stores offline receipt", async (t) => {
+  // This is the real-tool success-path fixture. Missing-tool behavior has its
+  // own isolated API tests; never inherit an accidental machine dependency.
+  const tools = await checkDedupTools({ env: process.env });
+  assert.equal(tools.ready, true, "dedup API success-path fixture requires verified local FFmpeg and ffprobe");
   const root = await mkdtemp(path.join(os.tmpdir(), "tracker-dedup-api-"));
   const data = path.join(root, "data");
   const person = { id: "person", name: "Person", folderPath: path.join(root, "Person"), platforms: [] };
   const other = { id: "other", name: "Other", folderPath: path.join(root, "Other"), platforms: [] };
   await mkdir(data);
   const stateFile = path.join(data, "state.json");
-  await writeFile(stateFile, JSON.stringify({ version: 4, settings: { theme: "dark", publicReleaseUse: { version: 1, acceptedAt: "2026-10-12T00:00:00Z" } },
+  await writeFile(stateFile, JSON.stringify({ version: 4, settings: { theme: "dark", dedupTools: { directory: tools.directory }, publicReleaseUse: { version: 1, acceptedAt: "2026-10-12T00:00:00Z" } },
     persons: [other, person], linkedAccounts: [], customPlatforms: [], recentPaths: [] }));
   const stateBefore = await readFile(stateFile);
   const index = await openPersonMediaIndex(person, { create: true });

@@ -86,6 +86,10 @@ const zip = await readFile(zipPath);
 const sums = await readFile(sumsPath);
 const checksum = createHash("sha256").update(zip).digest("hex");
 if (!sums.toString("utf8").split(/\r?\n/).includes(checksum + "  " + path.basename(zipPath))) throw new Error("The release ZIP checksum does not match SHA256SUMS.");
+// GitHub normalizes asset names and can strip non-ASCII characters. Keep the
+// local package's Chinese name, but publish a stable ASCII name and checksum.
+const publicZipName = "Media-Tracker-Windows-Minimal-" + versionLabel + ".zip";
+const publicSums = Buffer.from(checksum + "  " + publicZipName + "\n", "utf8");
 const remoteTag = await request("/repos/" + repository + "/git/ref/tags/" + tag);
 if (!remoteTag.object?.sha) throw new Error("Push and verify the source tag before publishing release assets.");
 let release = await request("/repos/" + repository + "/releases/tags/" + tag, { allowMissing: true });
@@ -93,9 +97,25 @@ if (!release) release = await request("/repos/" + repository + "/releases", { me
   tag_name: tag, name: "Media Tracker " + tag + " · Windows x64", draft: true, prerelease: false,
   body: await readFile(notesPath, "utf8"),
 } });
-for (const [filename, buffer] of [[path.basename(zipPath), zip], [path.basename(sumsPath), sums]]) {
-  const existing = release.assets?.find((asset) => asset.name === filename);
+for (const [filename, buffer] of [[publicZipName, zip], ["SHA256SUMS.txt", publicSums]]) {
+  let existing = release.assets?.find((asset) => asset.name === filename);
   const digest = "sha256:" + createHash("sha256").update(buffer).digest("hex");
+  if (!existing && filename === publicZipName) {
+    const sameBytes = release.assets?.filter((asset) => asset.digest === digest && asset.size === buffer.length) || [];
+    if (sameBytes.length > 1) throw new Error("Multiple matching release assets require manual review.");
+    if (sameBytes.length === 1) existing = await request("/repos/" + repository + "/releases/assets/" + sameBytes[0].id, {
+      method: "PATCH", body: { name: filename },
+    });
+  }
+  // Repair only the exact previously uploaded local-name checksum, whose
+  // recoverable bytes remain in sumsPath. Never replace unrelated assets.
+  if (filename === "SHA256SUMS.txt" && existing && existing.digest !== digest
+    && existing.digest === "sha256:" + createHash("sha256").update(sums).digest("hex")
+    && existing.size === sums.length) {
+    await request("/repos/" + repository + "/releases/assets/" + existing.id, { method: "DELETE" });
+    console.log(JSON.stringify({ replacedGeneratedChecksum: existing.name, recoveryFile: path.basename(sumsPath) }));
+    existing = null;
+  }
   if (existing) {
     if (existing.size !== buffer.length || existing.digest !== digest) throw new Error("A different release asset already exists; no file was overwritten.");
     continue;
@@ -103,8 +123,10 @@ for (const [filename, buffer] of [[path.basename(zipPath), zip], [path.basename(
   const asset = await request("/repos/" + repository + "/releases/" + release.id + "/assets?name=" + encodeURIComponent(filename), {
     method: "POST", binary: buffer, upload: true,
   });
-  if (asset.size !== buffer.length || asset.digest !== digest) throw new Error("Uploaded release asset verification failed; release remains a draft.");
+  if (asset.name !== filename || asset.size !== buffer.length || asset.digest !== digest) throw new Error("Uploaded release asset verification failed.");
   console.log(JSON.stringify({ asset: filename, bytes: asset.size, digest: asset.digest }));
 }
-release = await request("/repos/" + repository + "/releases/" + release.id, { method: "PATCH", body: { draft: false, make_latest: "true" } });
+release = await request("/repos/" + repository + "/releases/" + release.id, { method: "PATCH", body: {
+  draft: false, make_latest: "true", body: await readFile(notesPath, "utf8"),
+} });
 console.log(JSON.stringify({ release: release.html_url, tag: release.tag_name, assets: release.assets.map(({ name, size, digest }) => ({ name, size, digest })) }));

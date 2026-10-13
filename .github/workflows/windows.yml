@@ -48,4 +48,5 @@ jobs:
       - name: Check media
         run: npm run check:media
       - name: Run isolated local tests
-        run: node --test --test-concurrency=4 test/*.test.mjs
+        timeout-minutes: 12
+        run: node --test --test-timeout=120000 --test-concurrency=4 test/*.test.mjs

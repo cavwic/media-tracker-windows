@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "name": "Media Tracker dark window frame",
+  "theme": {
+    "colors": {
+      "frame": [13, 20, 32],
+      "frame_inactive": [13, 20, 32],
+      "toolbar": [13, 20, 32],
+      "tab_background_text": [238, 243, 251],
+      "tab_text": [238, 243, 251]
+    }
+  }
+}

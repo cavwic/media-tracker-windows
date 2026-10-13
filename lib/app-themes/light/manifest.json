@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "version": "1.0.0",
+  "name": "Media Tracker light window frame",
+  "theme": {
+    "colors": {
+      "frame": [244, 247, 251],
+      "frame_inactive": [244, 247, 251],
+      "toolbar": [244, 247, 251],
+      "tab_background_text": [23, 32, 51],
+      "tab_text": [23, 32, 51]
+    }
+  }
+}

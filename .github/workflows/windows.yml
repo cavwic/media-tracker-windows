@@ -1,0 +1,51 @@
+name: Windows checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: windows-latest
+    timeout-minutes: 25
+    env:
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Prepare pinned Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 24.14.1
+          architecture: x64
+          cache: npm
+      - name: Install locked JavaScript dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Prepare dedicated test browser
+        run: npx --no-install playwright install chromium
+      - name: Check server and collectors
+        run: npm run check
+      - name: Check language
+        run: npm run check:language
+      - name: Check custom platforms
+        run: npm run check:custom
+      - name: Check following discovery
+        run: npm run check:following
+      - name: Check lifecycle
+        run: npm run check:lifecycle
+      - name: Check media
+        run: npm run check:media
+      - name: Run isolated local tests
+        run: node --test --test-concurrency=4 test/*.test.mjs

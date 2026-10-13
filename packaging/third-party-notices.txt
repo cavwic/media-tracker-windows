@@ -1,0 +1,28 @@
+Third-party notices — independent public minimal edition
+
+Original Media Tracker code is licensed under the root LICENSE (MIT). This does not relicense third-party components or grant rights to third-party websites or media. Source files included under app and compile remain available under their respective licenses; normal first-run cleanup removes only the unchanged local compiler inputs after successful startup.
+
+IN THIS ZIP
+Playwright / playwright-core 1.62.1: Apache-2.0. app/node_modules retains LICENSE, NOTICE and ThirdPartyNotices.txt. No Playwright FFmpeg recording helper or winldd/PrintDeps executable is bundled. The application launches its dedicated browser with an explicit executablePath and does not use Playwright video recording.
+Node.js 24.14.1: licenses/Node-LICENSE.txt retains the complete upstream runtime and bundled-library notices. The Node executable is not in this minimal ZIP. Its pinned official archive is downloaded only after explicit confirmation; the complete SHA-256 is checked before extraction and the original LICENSE is kept under runtime/node.
+
+FIRST-RUN COMPONENTS (NOT BUNDLED IN THIS ZIP)
+Chrome for Testing 151.0.7922.34: downloaded from Google's pinned official archive after confirmation, with complete SHA-256 verification. ABOUT is retained and verified; chrome://terms and chrome://credits remain available inside that dedicated browser. Google Chrome terms and component-specific open-source notices apply; do not describe this binary as uniformly BSD-licensed. Review additional terms before mirroring or redistributing the downloaded browser.
+Python 3.13.16 embeddable runtime: PSF and upstream component licenses, retained in runtime/python/LICENSE.txt. The official archive is downloaded after confirmation and hash verification, without a system installation or registry changes.
+yt-dlp 2026.8.19: Unlicense for the project; borrowed code retains its own ISC/MIT notices in the included upstream Python sources. Its upstream license and documentation are retained unchanged.
+requests 2.34.2: Apache-2.0; LICENSE and NOTICE retained.
+certifi 2026.7.22: MPL-2.0 applies to the certificate data as described in its LICENSE. Complete upstream Python source and certificate data are retained. This is a file-level license obligation, not an obligation to relicense the application as MPL.
+charset-normalizer 3.5.1: MIT; license retained.
+idna 3.20: BSD-3-Clause; license retained.
+urllib3 2.8.0: MIT; license retained.
+Fixed official archive/wheel URLs, versions, complete hashes and license-file paths are recorded in components/runtime-manifest.json. Successful installations record their sources and hashes in the component's .collector-runtime-ready.json. No pip dependency resolution, global Python installation or unpinned latest download is performed.
+gallery-dl is not bundled, imported by the public worker or downloaded by first-run preparation. A legacy gallery selection cannot silently enable it. Any future integration needs its own GPL compatibility and security review.
+
+OPTIONAL LOCAL SIMILARITY TOOLS (NOT BUNDLED IN THIS ZIP)
+FFmpeg / ffprobe 9.0.2 essentials_build from Gyan: GPL-3.0-or-later according to the provider. With explicit user confirmation only, the fixed archive is fetched directly from the provider and verified against the SHA-256 in components/ffmpeg-package.json. LICENSE and the provider's README/source information are preserved at the selected tool location. It is invoked as a separate command-line program, not linked into the application.
+Provider: https://www.gyan.dev/ffmpeg/builds/
+FFmpeg source revision reference: https://github.com/FFmpeg/FFmpeg/commit/946fcce07b
+This revision link alone is not a complete corresponding-source package for every external library in that provider build. Anyone redistributing the installed binaries must independently satisfy the corresponding-source/build/license requirements for the exact build, including its external components. Patent and other legal obligations are separate.
+
+SECURITY AND ACCESS BOUNDARIES
+Local compilation produces an unsigned launcher. Neither these notices, user-side dependency downloads nor local compilation guarantee Windows SmartScreen / Smart App Control acceptance or complete publication compliance. This package does not disable those protections. Website access permission and media use rights are independent of these software licenses; see PUBLISHING.md and PUBLIC-EDITION.md.

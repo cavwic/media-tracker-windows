@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "platform": "windows-x64",
+  "pinnedOn": "2026-10-08",
+  "components": [
+    {
+      "id": "chromium",
+      "kind": "zip",
+      "version": "151.0.7922.34",
+      "browserRevision": "1234",
+      "displayName": "专用 Chrome for Testing / Chromium",
+      "licenseSummary": "Chrome 条款及组件开源声明；ABOUT、chrome://terms 与 chrome://credits 随运行环境保留。",
+      "licenseURL": "https://www.google.com/chrome/terms/",
+      "archiveURL": "https://storage.googleapis.com/chrome-for-testing-public/151.0.7922.34/win64/chrome-win64.zip",
+      "selectedURLs": [
+        "https://cdn.playwright.dev/builds/cft/151.0.7922.34/win64/chrome-win64.zip",
+        "https://storage.googleapis.com/chrome-for-testing-public/151.0.7922.34/win64/chrome-win64.zip"
+      ],
+      "sha256": "045621e45a9dd27002c7fc1d8e10fe9f5f71f4cadbf44ec6f397f56f0179725c",
+      "downloadBytes": 201068834,
+      "maxDownloadBytes": 268435456,
+      "maxExtractBytes": 805306368,
+      "archiveRoot": "chrome-win64",
+      "installDirectory": "browsers/chromium-1234",
+      "requiredFiles": [
+        "chrome-win64/chrome.exe",
+        "chrome-win64/chrome.dll",
+        "chrome-win64/chrome_elf.dll",
+        "chrome-win64/icudtl.dat",
+        "chrome-win64/resources.pak",
+        "chrome-win64/locales/en-US.pak",
+        "chrome-win64/ABOUT"
+      ]
+    },
+    {
+      "id": "python",
+      "kind": "python-embed",
+      "version": "3.13.16",
+      "license": "PSF-2.0",
+      "licenseSummary": "Python PSF；yt-dlp Unlicense；requests Apache-2.0；certifi MPL-2.0；charset-normalizer / urllib3 MIT；idna BSD-3-Clause。",
+      "licenseURL": "https://docs.python.org/3/license.html",
+      "archiveURL": "https://www.python.org/ftp/python/3.13.16/python-3.13.16-embed-amd64.zip",
+      "selectedURLs": [
+        "https://www.python.org/ftp/python/3.13.16/python-3.13.16-embed-amd64.zip"
+      ],
+      "sha256": "97dae5274cc54867065e8d5a3226e48c35017ed332a0fdb0e27d5b5821961297",
+      "downloadBytes": 11439094,
+      "maxDownloadBytes": 25165824,
+      "maxExtractBytes": 83886080,
+      "archiveRoot": null,
+      "installDirectory": "python",
+      "pthFile": "python313._pth",
+      "requiredFiles": [
+        "python.exe",
+        "python313.dll",
+        "python313.zip",
+        "python313._pth",
+        "LICENSE.txt"
+      ],
+      "wheels": [
+        {
+          "name": "yt-dlp",
+          "version": "2026.8.19",
+          "license": "Unlicense; additional ISC/MIT notices in upstream source",
+          "licenseFiles": ["yt_dlp-2026.8.19.dist-info/licenses/LICENSE"],
+          "archiveURL": "https://files.pythonhosted.org/packages/69/b2/8cd1613f56eed7ceb64fbd4df3f1c01246bfb098e6f398228bafda22b80b/yt_dlp-2026.8.19-py3-none-any.whl",
+          "sha256": "1d57897e94c6665a0a6f9bc54b34e584284e32c034ffab3a7df25d8f7b24eedf",
+          "downloadBytes": 3185533,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 33554432
+        },
+        {
+          "name": "requests",
+          "version": "2.34.2",
+          "license": "Apache-2.0",
+          "licenseFiles": ["requests-2.34.2.dist-info/licenses/LICENSE", "requests-2.34.2.dist-info/licenses/NOTICE"],
+          "archiveURL": "https://files.pythonhosted.org/packages/a0/f4/c67b0b3f1b9245e8d266f0f112c500d50e5b4e83cb6f3b71b6528104182a/requests-2.34.2-py3-none-any.whl",
+          "sha256": "2a0d60c172f83ac6ab31e4554906c0f3b3588d37b5cb939b1c061f4907e278e0",
+          "downloadBytes": 73075,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 20971520
+        },
+        {
+          "name": "certifi",
+          "version": "2026.7.22",
+          "license": "MPL-2.0 (certificate data)",
+          "licenseFiles": ["certifi-2026.7.22.dist-info/licenses/LICENSE"],
+          "archiveURL": "https://files.pythonhosted.org/packages/0b/a7/71ac2cff56fec219ed242bb11b8efb69fcc4bec75db06fb7bfe35de520e6/certifi-2026.7.22-py3-none-any.whl",
+          "sha256": "62f22742b58a1a33014a2b6b706588a8d7e2a88ae7bd1a6ebe8c992928483775",
+          "downloadBytes": 136983,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 20971520
+        },
+        {
+          "name": "charset-normalizer",
+          "version": "3.5.1",
+          "license": "MIT",
+          "licenseFiles": ["charset_normalizer-3.5.1.dist-info/licenses/LICENSE"],
+          "archiveURL": "https://files.pythonhosted.org/packages/cc/61/d01fc49b8dea277640b55a9e15960dbca9fdc8c9fde18e572d39c59f4019/charset_normalizer-3.5.1-py3-none-any.whl",
+          "sha256": "6df0ec430f9a831772c23ca5a224cba36517a58a84bb32c32bb59a9fa67c47f6",
+          "downloadBytes": 68658,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 20971520
+        },
+        {
+          "name": "idna",
+          "version": "3.20",
+          "license": "BSD-3-Clause",
+          "licenseFiles": ["idna-3.20.dist-info/licenses/LICENSE.md"],
+          "archiveURL": "https://files.pythonhosted.org/packages/58/a2/bb081bab032533a855d44de1d56f8e8426114ff1ba5d1f07a438a0a654f8/idna-3.20-py3-none-any.whl",
+          "sha256": "ab7ae7122974553370f0bdb919e1a960b2cd1bc1ef0276416d896db81c14582c",
+          "downloadBytes": 69583,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 20971520
+        },
+        {
+          "name": "urllib3",
+          "version": "2.8.0",
+          "license": "MIT",
+          "licenseFiles": ["urllib3-2.8.0.dist-info/licenses/LICENSE.txt"],
+          "archiveURL": "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl",
+          "sha256": "0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3",
+          "downloadBytes": 135717,
+          "maxDownloadBytes": 6291456,
+          "maxExtractBytes": 20971520
+        }
+      ]
+    }
+  ]
+}

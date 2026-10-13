@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <title data-i18n>Media Tracker · 公开最小版</title>
+    <link rel="icon" type="image/svg+xml" href="/media-tracker.svg" />
+    <link rel="alternate icon" type="image/x-icon" href="/media-tracker-v2.ico" />
+    <script src="/i18n.js"></script>
+    <script src="/i18n-dynamic.js"></script>
+    <script src="/theme-bootstrap.js"></script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div id="appearance-toolbar" class="appearance-toolbar" role="toolbar" aria-label="语言与主题" data-i18n-attrs="aria-label" data-window-no-drag>
+      <div class="appearance-picker">
+        <button id="language-menu-button" class="appearance-trigger language-trigger" type="button" aria-label="选择界面语言" title="选择界面语言" aria-haspopup="dialog" aria-expanded="false" aria-controls="language-menu" data-i18n-attrs="aria-label title">中/En</button>
+        <div id="language-menu" class="appearance-menu" role="dialog" aria-label="选择界面语言" data-i18n-attrs="aria-label" hidden>
+          <div id="language-control" class="appearance-options language-control" role="radiogroup" aria-label="语言模式" data-i18n-attrs="aria-label">
+            <label><input type="radio" name="language" value="system" /><span data-i18n>系统</span></label>
+            <label><input type="radio" name="language" value="zh" /><span lang="zh-CN">中文</span></label>
+            <label><input type="radio" name="language" value="en" /><span lang="en">En</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="appearance-picker">
+        <button id="theme-menu-button" class="appearance-trigger theme-trigger" type="button" aria-label="选择界面主题" title="选择界面主题" aria-haspopup="dialog" aria-expanded="false" aria-controls="theme-menu" data-i18n-attrs="aria-label title">
+          <svg class="theme-disc" viewBox="0 0 32 32" aria-hidden="true" focusable="false"><circle class="theme-disc-dark" cx="16" cy="16" r="12" /><path class="theme-disc-light" d="M16 4a12 12 0 0 0 0 24Z" /><circle class="theme-disc-outline" cx="16" cy="16" r="12" /><path class="theme-disc-divider" d="M16 4v24" /></svg>
+        </button>
+        <div id="theme-menu" class="appearance-menu" role="dialog" aria-label="选择界面主题" data-i18n-attrs="aria-label" hidden>
+          <div id="theme-control" class="appearance-options" role="radiogroup" aria-label="主题模式" data-i18n-attrs="aria-label">
+            <label><input type="radio" name="theme" value="system" /><span data-i18n>系统</span></label>
+            <label><input type="radio" name="theme" value="dark" /><span data-i18n>深色</span></label>
+            <label><input type="radio" name="theme" value="light" /><span data-i18n>浅色</span></label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="window-chrome" class="window-chrome" hidden>
+      <div class="window-drag-edge" data-window-drag aria-hidden="true"></div>
+      <div class="window-drag-space" data-window-drag aria-hidden="true"></div>
+      <div class="window-controls" role="toolbar" aria-label="窗口操作" data-i18n-attrs="aria-label">
+        <button id="window-minimize" class="window-control" type="button" data-window-action="minimize" aria-label="最小化窗口" title="最小化窗口" data-i18n-attrs="aria-label title">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M5 16h14" /></svg>
+        </button>
+        <button id="window-maximize" class="window-control" type="button" data-window-action="toggle-maximize" aria-label="最大化窗口" title="最大化窗口" aria-pressed="false" data-i18n-attrs="aria-label title">
+          <svg class="window-maximize-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="5.5" y="5.5" width="13" height="13" rx="1" /></svg>
+          <svg class="window-restore-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 5h10v10M5 9h10v10H5z" /></svg>
+        </button>
+        <button id="window-close" class="window-control window-close" type="button" data-window-action="close" aria-label="关闭工具" title="关闭工具并退出后台" data-i18n-attrs="aria-label title">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m6 6 12 12M18 6 6 18" /></svg>
+        </button>
+      </div>
+    </div>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="brand-block">
+          <img class="brand-mark" src="/media-tracker.svg" width="40" height="40" alt="" aria-hidden="true" />
+          <div>
+            <strong>Media Tracker</strong>
+            <small data-i18n>公开最小版 · 独立数据</small>
+          </div>
+        </div>
+
+        <nav class="primary-nav" aria-label="主要导航" data-i18n-attrs="aria-label">
+          <button class="nav-item is-active" type="button" data-view="people" aria-label="采集账号" data-i18n-attrs="aria-label">
+            <span class="nav-icon" data-i18n>人</span><span data-i18n>采集账号</span>
+          </button>
+          <button class="nav-item" type="button" data-view="settings" aria-label="我的账号" data-i18n-attrs="aria-label">
+            <span class="nav-icon" data-i18n>连</span><span data-i18n>我的账号</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <nav aria-label="维护导航" data-i18n-attrs="aria-label">
+            <button id="cache-nav-button" class="nav-item" type="button" data-view="cache" aria-label="缓存清理" title="缓存清理" data-i18n-attrs="aria-label title">
+              <span class="nav-icon" aria-hidden="true" data-i18n>清</span><span data-i18n>缓存清理</span>
+            </button>
+          </nav>
+          <div class="local-note">
+            <span class="status-dot"></span>
+            <div><strong data-i18n>仅保存在本机</strong><small data-i18n>登录资料含敏感信息</small></div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <section id="people-view" class="view is-active" aria-labelledby="people-title">
+          <div class="people-overview">
+          <header class="page-header people-page-header">
+            <div>
+              <h1 id="people-title" data-i18n>目标账号信息</h1>
+              <p data-i18n>每个平台可添加多个账号，同一人物的媒体统一保存，并保留全部发布来源。</p>
+            </div>
+            <div class="page-actions people-page-actions">
+              <button id="create-person-button" class="primary-button" type="button" data-i18n>新建人物</button>
+              <button id="sync-all-button" class="secondary-button sync-all-button" type="button">
+                <span class="sync-all-symbol" aria-hidden="true">↻</span>
+                <span data-i18n>一键同步全部</span>
+              </button>
+              <button id="dedup-all-button" class="secondary-button dedup-all-button" type="button" aria-describedby="dedup-action-hint">
+                <span class="dedup-symbol" aria-hidden="true">≋</span>
+                <span data-i18n>一键去重</span>
+              </button>
+              <p id="sync-all-status" class="action-status" aria-live="polite" data-i18n>已有账号走增量，全部人物并行同步。</p>
+              <p id="dedup-action-hint" class="action-status" data-i18n>图片与视频 · 本地比对 · 来源保留</p>
+            </div>
+          </header>
+          <div id="people-summary" class="summary-strip" aria-live="polite"></div>
+          </div>
+          <div id="people-scroll-region" class="people-scroll-region" role="region" aria-labelledby="people-title" tabindex="0">
+          <section id="dedup-receipt" class="dedup-receipt" aria-labelledby="dedup-title" hidden>
+            <div class="dedup-receipt-heading">
+              <div><span class="dedup-local-label" data-i18n>本地整理</span><h2 id="dedup-title" data-i18n>图片与视频去重</h2></div>
+              <span id="dedup-job-status" class="dedup-status-chip" data-i18n>等待开始</span>
+              <button id="dedup-cancel-button" class="text-button" type="button" hidden data-i18n>停止并关闭</button>
+              <button id="dedup-continue-button" class="text-button" type="button" hidden data-i18n>继续去重</button>
+              <button id="dedup-close-button" class="text-button" type="button" hidden data-i18n>关闭结果</button>
+            </div>
+            <p id="dedup-status" class="dedup-message" role="status" aria-live="polite"></p>
+            <progress id="dedup-progress" class="sync-progress" aria-label="去重扫描进度" value="0" max="100" data-i18n-attrs="aria-label"></progress>
+            <div class="dedup-metrics" aria-label="去重统计" data-i18n-attrs="aria-label">
+              <span data-i18n><strong id="dedup-scanned">0 / 0</strong>已检查文件</span>
+              <span data-i18n><strong id="dedup-merged">0</strong>已合并版本</span>
+              <span data-i18n><strong id="dedup-review">0</strong>疑似项保留</span>
+              <span data-i18n><strong id="dedup-archived">0 B</strong>可恢复归档</span>
+            </div>
+            <details id="dedup-details" class="dedup-details"><summary data-i18n>查看结果与保留规则</summary>
+              <p data-i18n>只在同一人物内合并高置信度的同内容图片或完整视频。保留版本参考分辨率、清晰度和内容完整性，不保证适合 LoRA 训练；裁剪、编辑、音轨不同或判断不充分的版本保留。疑似版本已保留，不影响采集完成，无需处理也可继续同步。</p>
+              <p data-i18n>合并版本移到人物 Index/DedupArchive，发布来源与恢复记录保留。归档仍占磁盘空间，不会自动永久删除。</p>
+              <p data-i18n>下方疑似项可单击文件名用系统关联程序检查，右键可打开文件位置或查看来源；全人物或单个人物的去重都可安全停止。</p>
+              <ul id="dedup-result-list"></ul>
+            </details>
+          </section>
+          <div id="people-list" class="people-grid"></div>
+          </div>
+        </section>
+
+        <section id="settings-view" class="view" aria-labelledby="settings-title">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow" data-i18n>外观与独立账号会话</p>
+              <h1 id="settings-title" data-i18n>关联你用于查看内容的账号</h1>
+              <p data-i18n>登录与同步都使用工具内置的独立运行内核，不调用或占用本机 Chrome、Edge，也不读取它们的账号资料。</p>
+            </div>
+          </header>
+
+          <section class="appearance-card" aria-labelledby="appearance-title">
+            <div>
+              <p class="eyebrow" data-i18n>界面主题</p>
+              <h2 id="appearance-title" data-i18n>所有工具窗口保持一致</h2>
+              <p data-i18n>右上角可随时切换语言和主题。选择系统语言时，Windows 显示语言为中文则使用中文，否则使用英文；选择系统主题会随 Windows 深浅色自动切换。手动选择可覆盖系统设置。</p>
+            </div>
+          </section>
+          <section class="appearance-card" aria-labelledby="automatic-dedup-title">
+            <div>
+              <p class="eyebrow" data-i18n>本地媒体整理</p>
+              <h2 id="automatic-dedup-title" data-i18n>新同步文件自动比对</h2>
+              <p data-i18n>同步保存后自动与同一人物的媒体比对，图片与视频均包含。保留版本参考可测量的分辨率、清晰度与完整性，不是 LoRA 训练适配结论。无法确认的疑似项保留，合并版本进入 Index/DedupArchive 可恢复归档；账号登录资料不参与去重。</p>
+            </div>
+          </section>
+
+          <section class="appearance-card dedup-tools-card" aria-labelledby="dedup-tools-title">
+            <div>
+              <p class="eyebrow" data-i18n>可选本地组件</p>
+              <h2 id="dedup-tools-title" data-i18n>图片与视频去重组件</h2>
+              <p data-i18n>精确去重无需额外安装。相似去重使用 FFmpeg 与 ffprobe，不需要 AI 模型；缺少组件时先询问，不会自动安装。</p>
+              <p id="dedup-tools-summary" class="field-hint" role="status" data-i18n>点击设置可检查组件或指定已有工具的位置。</p>
+            </div>
+            <button id="dedup-tools-settings" class="secondary-button" type="button" data-i18n>设置去重组件</button>
+          </section>
+
+          <div class="settings-layout">
+            <form id="linked-account-form" class="account-composer" autocomplete="off">
+              <div class="composer-index" data-i18n>连接新账号</div>
+              <label>
+                <span data-i18n>平台</span>
+                <select id="linked-platform" required></select>
+              </label>
+              <button id="create-linked-platform-button" class="secondary-button" type="button" data-i18n>＋ 自定义平台</button>
+              <label>
+                <span data-i18n>账号名称</span>
+                <input id="linked-label" type="text" maxlength="80" placeholder="例如：我的 X 主账号" autocomplete="off" required data-i18n-attrs="placeholder" />
+              </label>
+              <button class="primary-button" type="submit" data-i18n>创建关联</button>
+              <p class="composer-help" data-i18n>不登录也可尝试部分公开内容；敏感媒体、受限页面和完整历史通常需要登录。Google、Apple、Facebook 等关联登录会在工具自己的窗口中完成。</p>
+            </form>
+            <div id="linked-accounts-list" class="linked-account-list"></div>
+          </div>
+        </section>
+        <section id="cache-view" class="view" aria-labelledby="cache-title">
+          <header class="page-header">
+            <div>
+              <p class="eyebrow" data-i18n>本地维护</p>
+              <h1 id="cache-title" data-i18n>缓存清理</h1>
+              <p data-i18n>清理普通缓存保留登录状态；不用的历史资料夹可单独勾选删除。两项操作不影响已采集内容。</p>
+            </div>
+            <div class="page-actions">
+              <button id="cache-preview-button" class="secondary-button" type="button" data-i18n>扫描缓存</button>
+              <button id="cache-clean-button" class="primary-button" type="button" disabled data-i18n>清理缓存</button>
+            </div>
+          </header>
+
+          <section id="cache-summary" class="cache-summary" aria-label="缓存统计" aria-live="polite" data-i18n-attrs="aria-label">
+            <div class="cache-stat"><span id="cache-space-label" data-i18n>预计可释放</span><strong id="cache-space-value">—</strong></div>
+            <div class="cache-stat"><span id="cache-files-label" data-i18n>缓存文件</span><strong id="cache-files-value">—</strong></div>
+            <div class="cache-stat"><span data-i18n>登录资料夹</span><strong id="cache-profiles-value">—</strong></div>
+          </section>
+
+          <div class="cache-safety-note">
+            <span class="cache-safety-mark" aria-hidden="true">✓</span>
+            <div><strong data-i18n>清理普通缓存，保留账号登录信息</strong><p data-i18n>上方“清理缓存”只删除可重新生成的缓存，保留 Cookie、网站存储、登录设置、人物信息、同步索引及图片和视频。列表中的大小仅为普通缓存；0 B 不表示没有登录资料。正在使用的资料夹会跳过。清理的缓存不进回收站，下次访问网站时会重新生成。</p></div>
+          </div>
+          <section class="cache-history-actions" aria-label="删除不用的历史资料夹" data-i18n-attrs="aria-label">
+            <div><strong data-i18n>不用的历史资料夹</strong><p data-i18n>可能来自绑定失败或以前解除的关联，不代表当前账号登录失败。只有未被当前绑定使用且空闲的资料夹可勾选；删除会移除整个历史资料夹，包括其遗留登录信息，不能撤销。</p><small id="cache-selected-status" aria-live="polite" data-i18n>未选择历史资料夹</small></div>
+            <button id="cache-remove-profiles-button" class="danger-outline-button" type="button" disabled data-i18n>删除所选历史资料</button>
+          </section>
+          <p id="cache-status" class="cache-status" role="status" aria-live="polite" data-i18n>进入此页后会扫描缓存；扫描不会删除文件。</p>
+          <div id="cache-removal-receipt" class="cache-removal-receipt" role="status" hidden></div>
+          <div id="cache-profile-list" class="cache-profile-list" aria-busy="false"></div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="person-dialog" class="person-dialog">
+      <form id="person-form" method="dialog">
+        <header class="dialog-header">
+          <div>
+            <p class="eyebrow" id="dialog-eyebrow" data-i18n>新人物</p>
+            <h2 id="dialog-title" data-i18n>建立采集账号</h2>
+          </div>
+          <button id="close-dialog-button" class="icon-button" type="button" aria-label="关闭" data-i18n-attrs="aria-label">×</button>
+        </header>
+
+        <div class="dialog-body">
+          <div class="form-column">
+            <section class="form-section">
+              <div class="section-heading"><span>1</span><div><h3 data-i18n>人物信息</h3><p data-i18n>名称用于界面显示；已有目录不会因改名而移动。</p></div></div>
+              <div class="field-grid">
+                <label>
+                  <span data-i18n>人物名称</span>
+                  <input id="person-name" type="text" maxlength="80" placeholder="例如：人物 M" required data-i18n-attrs="placeholder" />
+                </label>
+                <label>
+                  <span data-i18n>备注（可选）</span>
+                  <input id="person-note" type="text" maxlength="160" placeholder="例如：摄影与旅行内容" data-i18n-attrs="placeholder" />
+                </label>
+              </div>
+            </section>
+
+            <section class="form-section">
+              <div class="section-heading"><span>2</span><div><h3 data-i18n>本地人物文件夹</h3><p data-i18n>可以在所选位置新建人物文件夹，也可以使用已经存在的文件夹。</p></div></div>
+              <div id="folder-mode-options" class="segmented-control">
+                <label><input type="radio" name="folder-mode" value="new" checked /><span data-i18n>新建人物文件夹</span></label>
+                <label><input type="radio" name="folder-mode" value="existing" /><span data-i18n>使用现有文件夹</span></label>
+              </div>
+              <div class="path-picker">
+                <input id="selected-path" type="text" list="recent-paths" placeholder="可直接粘贴 D:\目录 或 \\服务器\共享\目录" data-i18n-attrs="placeholder" />
+                <datalist id="recent-paths"></datalist>
+                <button id="pick-folder-button" class="secondary-button" type="button" data-i18n>Windows 浏览</button>
+              </div>
+              <p id="path-hint" class="field-hint" data-i18n>请选择父目录，工具将在其中新建人物名称文件夹。</p>
+            </section>
+
+            <section class="form-section">
+              <div class="section-heading"><span>3</span><div><h3 data-i18n>个人主页与账号发现</h3><p data-i18n>扫描主页公开链接，先生成候选账号，再由你决定添加、待关注和下载范围。</p></div></div>
+              <div class="homepage-analyzer">
+                <label>
+                  <span data-i18n>个人主页（可选）</span>
+                  <input id="homepage-url" type="text" inputmode="url" placeholder="https://example.com 或 Linktree 等公开主页" data-i18n-attrs="placeholder" />
+                </label>
+                <button id="analyze-homepage-button" class="secondary-button" type="button" data-i18n>分析主页账号</button>
+              </div>
+              <p id="homepage-status" class="field-hint" data-i18n>只读取该网页公开呈现的社交账号链接，不会根据姓名猜测同名账号。</p>
+              <div id="homepage-candidates" class="discovery-review" aria-live="polite"></div>
+            </section>
+
+            <section class="form-section">
+              <div class="section-heading"><span>4</span><div><h3 data-i18n>社交媒体账号</h3><p data-i18n>同一平台可以添加多个账号，并为每个账号选择图片、视频、GIF 和待关注状态。</p></div></div>
+              <div class="platform-adder">
+                <select id="platform-to-add" aria-label="选择社交媒体平台" data-i18n-attrs="aria-label"></select>
+                <button id="add-platform-button" class="secondary-button" type="button" data-i18n>添加平台</button>
+              </div>
+              <div id="person-following-page-hint" class="field-hint" hidden><span data-i18n>请先在平台设置中添加该自定义平台的关注页。仅关注列表导入需要此设置，仍可手动添加账号和同步媒体。</span> <button id="person-following-platform-settings" class="text-button" type="button" data-i18n>平台设置</button></div>
+              <button id="create-person-platform-button" class="text-button custom-platform-entry" type="button" data-i18n>＋ 自定义平台</button>
+              <button id="import-following-button" class="secondary-button following-import-entry" type="button" data-i18n>从已关注账号导入</button>
+              <div id="platform-editor" class="platform-editor"></div>
+            </section>
+          </div>
+
+          <aside class="blueprint-column">
+            <div class="blueprint-sticky">
+              <div class="blueprint-header">
+                <div><small data-i18n>创建结果</small><h3 data-i18n>文件夹蓝图</h3></div>
+                <span class="sensitive-chip" data-i18n>敏感媒体：包含</span>
+              </div>
+              <div id="folder-tree" class="folder-tree"></div>
+              <p class="blueprint-note" data-i18n>保存时建立人物目录和 Index 来源索引目录。图片、视频目录在首次成功下载时按需创建；移除平台或账号不会删除媒体或历史来源。</p>
+            </div>
+          </aside>
+        </div>
+
+        <footer class="dialog-footer">
+          <div id="form-status" class="form-status" role="status"></div>
+          <button id="cancel-person-button" class="text-button" type="button" data-i18n>取消</button>
+          <button id="save-person-button" class="primary-button" type="submit" data-i18n>创建人物</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="following-import-dialog" class="following-import-dialog" aria-labelledby="following-import-title" aria-describedby="following-import-help">
+      <div class="following-import-layout">
+        <header class="dialog-header">
+          <div><p class="eyebrow" data-i18n>使用现有登录绑定</p><h2 id="following-import-title" data-i18n>导入已关注账号</h2></div>
+          <button id="close-following-import" class="icon-button" type="button" aria-label="关闭已关注账号导入" data-i18n-attrs="aria-label">×</button>
+        </header>
+        <div class="following-import-body">
+          <p id="following-import-help" class="field-hint" data-i18n>从“我的账号”中选择登录绑定，读取当前可访问的关注列表。所选账号只加入当前人物草稿，保存人物后生效；不会自动关注或下载媒体。</p>
+          <div class="following-import-source">
+            <label><span data-i18n>读取哪个我的账号</span><select id="following-import-source" aria-label="读取哪个我的账号" data-i18n-attrs="aria-label"></select></label>
+            <button id="read-following-import" class="secondary-button" type="button" data-i18n>读取关注列表</button>
+            <button id="stop-following-import" class="text-button" type="button" hidden data-i18n>停止读取</button>
+          </div>
+          <p id="following-import-status" class="following-import-status" role="status" aria-live="polite" data-window-no-drag></p>
+          <button id="following-import-platform-settings" class="text-button" type="button" hidden data-i18n>平台设置</button>
+          <div class="following-import-tools">
+            <label class="following-import-search"><span data-i18n>搜索已读取账号</span><input id="following-import-search" type="search" autocomplete="off" maxlength="200" placeholder="名称或账号标识" data-i18n-attrs="placeholder" /></label>
+            <button id="select-following-visible" class="text-button" type="button" data-i18n>选择本页</button>
+            <button id="clear-following-selection" class="text-button" type="button" data-i18n>清空选择</button>
+          </div>
+          <div id="following-import-list" class="following-import-list" aria-busy="false"></div>
+          <div class="following-import-pagination"><span id="following-import-page"></span><button id="previous-following-page" class="text-button" type="button" data-i18n>上一页</button><button id="next-following-page" class="text-button" type="button" data-i18n>下一页</button></div>
+          <p class="field-hint following-import-group-note" data-i18n>可依次读取不同平台的登录绑定。请只勾选属于同一个人物的账号；工具不会按相似名称自动合并人物。</p>
+        </div>
+        <footer class="dialog-footer following-import-footer">
+          <span id="following-import-selected" class="field-hint" aria-live="polite"></span>
+          <button id="cancel-following-import" class="text-button" type="button" data-i18n>返回人物草稿</button>
+          <button id="apply-following-import" class="primary-button" type="button" disabled data-i18n>添加所选账号</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog id="platform-dialog" class="platform-dialog" aria-labelledby="platform-dialog-title" aria-describedby="platform-dialog-help">
+      <form id="platform-form">
+        <header class="dialog-header">
+          <div><p class="eyebrow" data-i18n>全局平台</p><h2 id="platform-dialog-title" data-i18n>添加自定义平台</h2></div>
+          <button id="close-platform-dialog" class="icon-button" type="button" aria-label="关闭自定义平台" data-i18n-attrs="aria-label">×</button>
+        </header>
+        <div class="platform-dialog-body">
+          <p id="platform-dialog-help" class="field-hint" data-i18n>创建后，所有人物和“我的账号”都能选择此平台。平台名称只用于归档；能否采集需用目标账号链接测试。</p>
+          <div class="field-grid">
+            <label><span data-i18n>平台名称</span><input id="custom-platform-label" maxlength="60" required placeholder="例如：我的相册站" data-i18n-attrs="placeholder" /></label>
+            <label><span data-i18n>采集方式</span><select id="custom-platform-engine"><option value="auto" data-i18n>自动识别支持的站点（推荐）</option><option value="yt-dlp" data-i18n>yt-dlp · 视频</option><option value="none" data-i18n>仅保存账号资料，暂不采集</option></select></label>
+          </div>
+          <label><span data-i18n>平台主页</span><input id="custom-platform-homepage" type="url" inputmode="url" required placeholder="https://example.com/" /></label>
+          <p id="custom-platform-folder-hint" class="field-hint" hidden data-i18n>平台主页域名创建后固定，以隔离登录资料。修改名称不会更改登录资料或媒体位置；如需其他网站，请新建平台。</p>
+          <label><span data-i18n>登录网址（可选，默认使用主页）</span><input id="custom-platform-login" type="url" inputmode="url" placeholder="https://example.com/login" /></label>
+          <p class="field-hint" data-i18n>登录在工具专用窗口中完成，也可在站点内使用第三方关联登录。打开页面不等于登录成功，之后仍需点击“验证登录”。</p>
+          <label><span data-i18n>关注页（可选）</span><input id="custom-platform-following" type="url" inputmode="url" maxlength="2048" placeholder="https://example.com/following" /></label>
+          <p class="field-hint" data-i18n>填写当前登录账号的关注列表页面，使用平台域名下的 HTTPS 地址。未填写时仍可手动添加账号和同步媒体；填写后会尝试读取页面上的账号链接，不保证任意网站都支持。</p>
+          <details class="platform-verification-settings">
+            <summary data-i18n>高级：登录验证规则（需要登录时配置）</summary>
+            <p class="field-hint" data-i18n>本版自定义平台需配置登录后专有标记，并用独立匿名页面对照；匿名时应出现未登录标记，或跳转到登录页。不能使用 body 或通用导航。未配置、匿名也能看到同一标记或对照失败时，不会判为已登录。修改规则后需重新验证关联账号。</p>
+            <label><span data-i18n>验证页面网址</span><input id="custom-platform-verification" type="url" inputmode="url" placeholder="例如：https://example.com/settings" data-i18n-attrs="placeholder" /></label>
+            <label><span data-i18n>登录后可见标记（CSS 选择器）</span><input id="custom-platform-login-marker" maxlength="500" placeholder='例如：[data-testid="account-menu"]' spellcheck="false" data-i18n-attrs="placeholder" /></label>
+            <label><span data-i18n>未登录时可见标记（CSS 选择器，无登录跳转时需填）</span><input id="custom-platform-logout-marker" maxlength="500" placeholder='例如：form[action="/login"]' spellcheck="false" data-i18n-attrs="placeholder" /></label>
+          </details>
+        </div>
+        <footer class="dialog-footer">
+          <div id="platform-form-status" class="form-status" role="status"></div>
+          <button id="cancel-platform-dialog" class="text-button" type="button" data-i18n>取消</button>
+          <button id="save-platform-button" class="primary-button" type="submit" data-i18n>创建平台</button>
+        </footer>
+      </form>
+    </dialog>
+
+    <dialog id="dedup-tools-dialog" class="confirm-dialog dedup-tools-dialog" aria-labelledby="dedup-tools-dialog-title" aria-describedby="dedup-tools-help">
+      <p class="eyebrow" data-i18n>仅使用本地计算</p>
+      <h2 id="dedup-tools-dialog-title" data-i18n>准备去重组件</h2>
+      <p id="dedup-tools-help" data-i18n>需要 FFmpeg 与 ffprobe 才能比对压缩后不同的图片和视频。组件下载需要网络；去重不上传媒体，不使用 AI 服务。</p>
+      <p id="dedup-tools-status" class="field-hint" role="status" aria-live="polite"></p>
+      <progress id="dedup-tools-progress" class="sync-progress" max="100" aria-label="去重工具包准备进度" hidden data-i18n-attrs="aria-label"></progress>
+      <div class="dedup-tools-fields">
+        <label><span data-i18n>组件安装的父文件夹</span><div class="dedup-tools-path-row"><input id="dedup-tools-install-path" type="text" placeholder="默认：采集工具文件夹下的 tools" data-i18n-attrs="placeholder" /><button id="dedup-tools-pick-install" class="secondary-button" type="button" data-i18n>浏览</button></div></label>
+        <p id="dedup-tools-install-hint" class="field-hint" data-i18n>只在所选位置新建独立版本目录，不改注册表或系统 PATH，不覆盖已有工具。</p>
+        <button id="dedup-tools-install" class="primary-button" type="button" data-i18n>下载并安装组件</button>
+        <div class="dedup-tools-divider" data-i18n>已经安装，或不希望下载</div>
+        <label><span data-i18n>已有 FFmpeg 的 bin 文件夹</span><div class="dedup-tools-path-row"><input id="dedup-tools-existing-path" type="text" placeholder="该目录应同时包含 ffmpeg.exe 与 ffprobe.exe" data-i18n-attrs="placeholder" /><button id="dedup-tools-pick-existing" class="secondary-button" type="button" data-i18n>浏览</button></div></label>
+        <p class="field-hint" data-i18n>请选择可信工具的位置。确认后会运行这两个程序进行版本和能力检查。</p>
+      </div>
+      <div class="confirm-actions"><button id="dedup-tools-cancel" class="text-button" type="button" data-i18n>暂不安装</button><button id="dedup-tools-use-existing" class="secondary-button" type="button" data-i18n>验证并使用已有工具</button></div>
+    </dialog>
+
+    <dialog id="confirm-dialog" class="confirm-dialog" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+      <form method="dialog">
+        <p class="eyebrow" data-i18n>请确认</p>
+        <h2 id="confirm-title" data-i18n>移除账号关联？</h2>
+        <p id="confirm-message"></p>
+        <div id="confirm-path" class="folder-path" hidden></div>
+        <div class="confirm-actions">
+          <button id="confirm-cancel" class="text-button" value="cancel" type="submit" data-i18n>取消</button>
+          <button id="confirm-alternative" class="secondary-button" value="alternative" type="submit" hidden data-i18n>是，保留内容</button>
+          <button id="confirm-button" class="danger-confirm-button" value="confirm" type="submit" data-i18n>确认移除</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="media-dialog" class="media-dialog" aria-labelledby="media-dialog-title" aria-describedby="media-dialog-help">
+      <div class="media-dialog-layout">
+        <header class="dialog-header">
+          <div><p class="eyebrow" data-i18n>人物媒体索引</p><h2 id="media-dialog-title" data-i18n>媒体与来源</h2></div>
+          <button id="close-media-dialog" class="icon-button" type="button" aria-label="关闭媒体与来源" data-i18n-attrs="aria-label">×</button>
+        </header>
+        <div class="media-dialog-body">
+          <p id="media-dialog-help" class="field-hint" data-i18n>同一人物的相同文件只保存一份；查看来源可追溯各平台、账号和帖子。</p>
+          <div id="media-person-path" class="folder-path"></div>
+          <form id="media-search-form" class="media-search-form" role="search">
+            <label><span data-i18n>搜索文件名</span><input id="media-search" type="search" maxlength="200" placeholder="输入完整或部分文件名" autocomplete="off" data-i18n-attrs="placeholder" /></label>
+            <button class="secondary-button" type="submit" data-i18n>搜索</button>
+            <button id="refresh-media-list" class="text-button" type="button" data-i18n>刷新</button>
+          </form>
+          <p id="media-list-status" class="field-hint" role="status" aria-live="polite"></p>
+          <div id="media-list" class="media-list" aria-busy="false"></div>
+        </div>
+        <footer class="dialog-footer media-pagination">
+          <span id="media-page-status"></span>
+          <button id="media-previous-page" class="secondary-button" type="button" data-i18n>上一页</button>
+          <button id="media-next-page" class="secondary-button" type="button" data-i18n>下一页</button>
+        </footer>
+      </div>
+    </dialog>
+
+    <dialog id="sources-dialog" class="sources-dialog" aria-labelledby="sources-dialog-title" aria-describedby="sources-file-name">
+      <div class="media-dialog-layout">
+        <header class="dialog-header">
+          <div><p class="eyebrow" data-i18n>全部来源记录</p><h2 id="sources-dialog-title" data-i18n>文件来源</h2></div>
+          <button id="close-sources-dialog" class="icon-button" type="button" aria-label="关闭文件来源" data-i18n-attrs="aria-label">×</button>
+        </header>
+        <div class="media-dialog-body">
+          <div id="sources-file-name" class="folder-path"></div>
+          <p id="sources-status" class="field-hint" role="status" aria-live="polite"></p>
+          <div id="sources-list" aria-busy="false"></div>
+        </div>
+      </div>
+    </dialog>
+
+    <div id="file-context-menu" class="file-context-menu" role="menu" aria-label="文件操作" hidden data-i18n-attrs="aria-label">
+      <button id="reveal-file-location" type="button" role="menuitem" data-i18n><span aria-hidden="true">⌖</span>打开文件位置</button>
+      <button id="view-file-sources" type="button" role="menuitem" data-i18n><span aria-hidden="true">↗</span>查看来源</button>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script>window.MediaTrackerI18n?.applyStatic();</script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

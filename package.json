@@ -1,0 +1,31 @@
+{
+  "name": "media-tracker-public",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Independent public minimal edition of Media Tracker.",
+  "license": "MIT",
+  "scripts": {
+    "start": "node server.mjs",
+    "release:local-build": "node packaging/build-portable.mjs",
+    "icons:build": "node scripts/build-icons.mjs",
+    "check:language": "node --check lib/ui-language.mjs && node --check public/i18n.js && node --check public/i18n-dynamic.js && node --check public/app.js",
+    "check:following": "node --check lib/following-discovery.mjs && node --check lib/custom-following.mjs && node --check lib/following-import-manager.mjs",
+    "release:source": "node packaging/export-github-source.mjs",
+    "release:audit-source": "node packaging/export-github-source.mjs --audit",
+    "check:custom": "node --check lib/background-chromium.mjs && node --check lib/platform-registry.mjs && node --check lib/custom-login.mjs && node --check lib/custom-sync.mjs",
+    "check:lifecycle": "node --check lib/app-shell.mjs && node --check lib/app-window-frame.mjs && node --check lib/app-titlebar-theme.mjs && node --check lib/person-folder-open.mjs && node --check lib/windows-file-action.mjs && node --check lib/owned-login-windows.mjs && node --check lib/running-tracker.mjs && node --check lib/startup-timing.mjs && node --check scripts/start-service.mjs",
+    "check:media": "node --check lib/background-chromium.mjs && node --check lib/person-media-index.mjs && node --check lib/media-similarity.mjs && node --check lib/similarity-dedup.mjs && node --check lib/media-naming.mjs && node --check lib/publication-date.mjs && node --check lib/backup-import.mjs && node --check lib/sync-store.mjs && node --check lib/sync-verification.mjs && node --check lib/bound-post.mjs && node --check lib/downloader.mjs && node --check lib/sync-engine.mjs && node --check lib/file-reveal.mjs && node --check scripts/rebuild-readable-names.mjs && node --check scripts/import-backup.mjs",
+    "cache:preview": "node scripts/clean-browser-cache.mjs --preview",
+    "cache:clean": "node scripts/clean-browser-cache.mjs --interactive",
+    "backup:import": "node scripts/import-backup.mjs",
+    "check": "node --check server.mjs && node --check lib/profile-cache.mjs && node --check lib/profile-maintenance.mjs && node --check lib/manual-cache-maintenance.mjs && node --check lib/archive.mjs && node --check lib/auth.mjs && node --check lib/downloader.mjs && node --check lib/facebook-media.mjs && node --check lib/facebook-sync.mjs && node --check lib/file-reveal.mjs && node --check lib/folder-picker.mjs && node --check lib/homepage-discovery.mjs && node --check lib/instagram-media.mjs && node --check lib/instagram-sync.mjs && node --check lib/sync-engine.mjs && node --check lib/sync-store.mjs && node --check lib/sync-boundary.mjs && node --check lib/person-delete.mjs && node --check lib/tiktok-media.mjs && node --check lib/tiktok-sync.mjs && node --check lib/tiktok-browser.mjs && node --check lib/tiktok-login.mjs && node --check lib/tiktok-image-fetch.mjs && node --check scripts/probe-tiktok.mjs && node --check lib/x-media.mjs && node --check lib/x-sync.mjs && node --check public/theme-bootstrap.js && node --check public/app.js",
+    "test": "node --test --test-concurrency=4 test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "playwright": "^1.62.1"
+  }
+}

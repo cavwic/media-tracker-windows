@@ -1,0 +1,52 @@
+name: 问题报告 / Bug report
+description: 报告 Windows 公开最小版中的可复现问题，不上传登录资料或私人媒体。
+title: "[Bug] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请先确认使用最新公开版。此模板内容会公开。请删除 Cookie、令牌、账号、私有路径和媒体信息；不要上传整个 data、浏览器资料或 Index。
+        安全漏洞请先阅读 SECURITY.md，通过私密渠道报告。平台登录失效或拒绝访问不应通过关闭安全功能、轮换账号或 IP 绕过。
+  - type: input
+    id: version
+    attributes:
+      label: 工具版本 / Application version
+      placeholder: 例如 V1.2
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows 版本与架构 / Windows version and architecture
+      placeholder: 例如 Windows 11 x64；可附显示缩放，不要附设备或用户名
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 最小复现步骤 / Steps to reproduce
+      description: 使用合成样例或匿名描述，不提供真实账号及登录信息。
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: 预期与实际结果 / Expected and actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: 脱敏错误片段 / Redacted diagnostic excerpt
+      description: 仅最小错误片段；上传截图前遮挡账号、私有路径、帖子及令牌。
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 提交前确认 / Before submitting
+      options:
+        - label: 未包含凭据、Cookie、真实账号、私人媒体、浏览器资料或未脱敏的路径。
+          required: true
+        - label: 我明白普通 Issue 会公开，安全漏洞应使用私密报告。
+          required: true

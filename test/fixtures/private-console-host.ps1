@@ -1,5 +1,6 @@
 param([string]$NodeExecutable,[string]$WorkerPath,[string]$ReportPath,[ValidateSet('original','fixed')][string]$Mode)
 $ErrorActionPreference='Stop'
+[IO.File]::WriteAllText($ReportPath,(@{mode=$Mode;phase='host-compiling'}|ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
 Add-Type -TypeDefinition @'
 using System; using System.Text; using System.Runtime.InteropServices;
 public static class ConsoleFixtureHost {
@@ -34,8 +35,11 @@ try {
  $command=[Text.StringBuilder]::new($arguments)
  if(-not [ConsoleFixtureHost]::CreateProcess($NodeExecutable,$command,[IntPtr]::Zero,[IntPtr]::Zero,$false,0x08000404,[IntPtr]::Zero,[IO.Path]::GetDirectoryName($WorkerPath),[ref]$startup,[ref]$child)){throw 'Fixture process unavailable'}
  if(-not [ConsoleFixtureHost]::AssignProcessToJobObject($job,$child.process)){throw 'Fixture job assignment failed'}
+ [IO.File]::WriteAllText($ReportPath,(@{mode=$Mode;phase='host-worker-created';workerPid=$child.processId}|ConvertTo-Json -Compress),[Text.UTF8Encoding]::new($false))
  if([ConsoleFixtureHost]::ResumeThread($child.thread) -eq [uint32]::MaxValue){throw 'Fixture start failed'}
- if([ConsoleFixtureHost]::WaitForSingleObject($child.process,20000) -ne 0){throw 'Fixture timed out'}
+ # Covers the worker's bounded browser, page, probe and force-cleanup stages,
+ # including Node startup. The outer test allows a further 10s for this host.
+ if([ConsoleFixtureHost]::WaitForSingleObject($child.process,45000) -ne 0){throw 'Fixture timed out; inspect its last reported phase'}
  $exitCode=[uint32]0;[void][ConsoleFixtureHost]::GetExitCodeProcess($child.process,[ref]$exitCode)
  if($exitCode -ne 0){throw 'Fixture failed; inspect its temporary report'}
 } finally {

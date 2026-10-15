@@ -68,7 +68,7 @@ test("bundled default headless shell is Console-subsystem while selected headles
   assert.equal(await subsystem(BACKGROUND_CHROMIUM_EXECUTABLE), 2);
 });
 
-test("offline private-desktop probe verifies fixed startup has no console/window and own-PID force cleanup exits", { skip: process.platform !== "win32", timeout: 60_000 }, async (t) => {
+test("offline private-desktop probe verifies fixed startup has no console/window and own-PID force cleanup exits", { skip: process.platform !== "win32", timeout: 115_000 }, async (t) => {
   const temporary = await mkdtemp(path.join(os.tmpdir(), "media-tracker-console-fixture-"));
   t.after(async () => { assert.ok(path.resolve(temporary).startsWith(path.resolve(os.tmpdir()) + path.sep)); await rm(temporary, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 }); });
   const powershell = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
@@ -77,7 +77,10 @@ test("offline private-desktop probe verifies fixed startup has no console/window
     const reportPath = path.join(temporary, `${mode}.json`);
     await execFileAsync(powershell, ["-NoProfile", "-NonInteractive", "-File", path.resolve("test/fixtures/private-console-host.ps1"),
       "-NodeExecutable", process.execPath, "-WorkerPath", path.resolve("test/fixtures/console-browser-probe.mjs"), "-ReportPath", reportPath, "-Mode", mode],
-    { windowsHide: true, timeout: 25_000, maxBuffer: 128 * 1024 }).catch(async (error) => {
+    // The worker's bounded browser/probe stages fit inside its 45s host
+    // deadline. Allow another 10s for PowerShell compilation and job cleanup;
+    // both modes plus temporary cleanup still fit below the CLI's 120s cap.
+    { windowsHide: true, timeout: 55_000, maxBuffer: 128 * 1024 }).catch(async (error) => {
       error.message += "\n" + await readFile(reportPath, "utf8").catch(() => "Fixture report unavailable");
       throw error;
     });

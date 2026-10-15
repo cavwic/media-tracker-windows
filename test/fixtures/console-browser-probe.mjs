@@ -6,14 +6,32 @@ import { writeFile } from "node:fs/promises";
 const [reportPath, mode, desktopName] = process.argv.slice(2);
 const run = promisify(childProcess.execFile);
 const powershell = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
-let browser, browserPid;
+let browser, browserPid, phase = "worker-started";
+async function progress(next) {
+  phase = next;
+  await writeFile(reportPath, JSON.stringify({ mode, phase, ...(browserPid ? { browserPid } : {}) }));
+}
+async function bounded(operation, timeout, label) {
+  let timer;
+  try {
+    return await Promise.race([operation, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Fixture ${label} timed out`)), timeout);
+      timer.unref();
+    })]);
+  } finally { clearTimeout(timer); }
+}
 try {
+  await progress("worker-started");
   let executablePath;
   if (mode === "fixed") ({ BACKGROUND_CHROMIUM_EXECUTABLE: executablePath } = await import("../../lib/background-chromium.mjs"));
   const spawn = childProcess.spawn;
   childProcess.spawn = (command, args, options) => { const child = spawn(command, args, options); if (args?.includes("--remote-debugging-pipe") && args.some((arg) => arg.startsWith("--headless"))) browserPid = child.pid; return child; };
+  await progress("browser-launch");
   browser = await chromium.launch({ headless: true, ...(executablePath ? { executablePath } : {}), args: ["--disable-background-networking"], timeout: 10_000 });
-  const page = await browser.newPage(); await page.setContent("<p>Offline console fixture</p>");
+  await progress("page-create");
+  const page = await bounded(browser.newPage(), 5_000, "page creation");
+  await progress("page-content");
+  await page.setContent("<p>Offline console fixture</p>", { timeout: 3_000 });
   const source = `
 Add-Type -TypeDefinition @'
 using System;using System.Text;using System.Collections.Generic;using System.Runtime.InteropServices;
@@ -42,6 +60,7 @@ $user=[ProbeConsole]::OpenDesktop('Default',0,$false,0x41)
 try{@{consoleAttached=$attached;consoleVisible=($console -ne [IntPtr]::Zero -and [ProbeConsole]::IsWindowVisible($console));visibleBrowserWindows=[ProbeConsole]::Count($private,${browserPid});privateWindowDetails=[ProbeConsole]::Describe($private,${browserPid});userDesktopWindows=[ProbeConsole]::Count($user,${browserPid})}|ConvertTo-Json -Compress}
 finally{if($attached){[void][ProbeConsole]::FreeConsole()};[void][ProbeConsole]::CloseDesktop($private);[void][ProbeConsole]::CloseDesktop($user)}
 `;
+  await progress("window-probe");
   const { stdout } = await run(powershell, ["-NoProfile", "-NonInteractive", "-Command", source], { windowsHide: true, timeout: 10_000 });
   const result = JSON.parse(stdout.trim());
   if (mode === "fixed") {
@@ -49,12 +68,14 @@ finally{if($attached){[void][ProbeConsole]::FreeConsole()};[void][ProbeConsole]:
     // registered browser. The runtime guard changes it to direct, hidden taskkill.
     const cleanupCommand = `taskkill /pid ${browserPid} /T /F`;
     const disconnected = new Promise((resolve) => browser.once("disconnected", resolve));
-    const killed = childProcess.spawnSync(cleanupCommand, { shell: true });
+    await progress("force-cleanup");
+    const killed = childProcess.spawnSync(cleanupCommand, { shell: true, timeout: 3_000 });
     if (killed.status !== 0) throw new Error(`Fixture force cleanup failed (${killed.status})`);
-    await Promise.race([disconnected, new Promise((_, reject) => setTimeout(() => reject(new Error("Fixture browser did not exit")), 3_000).unref())]);
+    await bounded(disconnected, 3_000, "browser exit");
     Object.assign(result, { killPid: browserPid, cleanupCommand, killExited: !browser.isConnected() });
   }
-  await browser.close().catch(() => {}); browser = null;
+  await progress("browser-close");
+  await bounded(browser.close(), 3_000, "browser close"); browser = null;
   await writeFile(reportPath, JSON.stringify({ ...result, browserPid }));
-} catch (error) { await writeFile(reportPath, JSON.stringify({ error: error.message, stack: error.stack })); process.exitCode = 1; }
-finally { await browser?.close().catch(() => {}); }
+} catch (error) { await writeFile(reportPath, JSON.stringify({ error: error.message, phase, stack: error.stack })); process.exitCode = 1; }
+finally { if (browser) await bounded(browser.close(), 3_000, "failure cleanup").catch(() => {}); }

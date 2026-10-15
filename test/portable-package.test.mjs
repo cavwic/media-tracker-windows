@@ -16,10 +16,24 @@ test("release instructions derive their public version from the single internal 
   for (const name of ["portable-instructions.txt", "minimal-instructions.txt"]) {
     const template = await readFile(new URL("../packaging/" + name, import.meta.url), "utf8");
     const rendered = renderReleaseInstructions(template, "1.0.0");
-    assert.match(rendered, /本次发布版本 V1\.0/);
+    assert.match(rendered, /V1\.0/);
     assert.ok(!rendered.includes("{{RELEASE_VERSION}}"));
-    assert.match(rendered, /release\/history/);
   }
+});
+
+test("user documentation stays concise while publication rules remain in the maintainer workflow", async () => {
+  const readme = await readFile(new URL("../README.md", import.meta.url), "utf8");
+  const instructions = await readFile(new URL("../packaging/minimal-instructions.txt", import.meta.url), "utf8");
+  for (const text of [readme, instructions]) {
+    for (const heading of ["是什么", "能做什么", "怎么用"]) assert.ok(text.includes(heading), heading);
+    assert.doesNotMatch(text, /公开最小版|最小公开版|本版内容|后续计划|版本与来源|release\/history/);
+    assert.match(text, /Windows/);
+    assert.match(text, /首次编译\.cmd/);
+    assert.match(text, /未签名/);
+    assert.match(text, /平台自动采集许可/);
+  }
+  const workflow = await readFile(new URL("../packaging/release-workflow.md", import.meta.url), "utf8");
+  for (const required of ["更新最新版", "GitHub", "Release", "release/history", "不删除、不覆盖", "不得改动或重启自用版", "登录资料", "白名单", "SHA-256"]) assert.ok(workflow.includes(required), required);
 });
 
 test("optional component uses pinned provider, version and SHA, not mutable latest install", async () => {

@@ -1,11 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { buildPortable, permittedPackagePath, renderReleaseInstructions } from "../packaging/build-portable.mjs";
 
 test("release whitelist excludes all source private state and startup entries", () => {
-  for (const entry of ["data/state.json", "data/browser-profiles/Cookies", ".runtime/venv", "start.cmd", "采集工具.lnk", "server.out.log", "test/a.mjs", "app/../data/state.json", "/app/server.mjs", "app/server.mjs:ads", "app\\private"]) assert.equal(permittedPackagePath(entry), false);
-  for (const entry of ["app/server.mjs", "runtime/node/node.exe", "compile/Launcher.cs", "components/ffmpeg-package.json", "首次编译.cmd", "LICENSE", "README.md", "README.en.md", "PUBLISHING.md", "PRIVACY.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", "docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md"]) assert.equal(permittedPackagePath(entry), true);
+  for (const entry of ["data/state.json", "data/browser-profiles/Cookies", ".runtime/venv", "start.cmd", "采集工具.lnk", "server.out.log", "test/a.mjs", "app/../data/state.json", "/app/server.mjs", "app/server.mjs:ads", "app\\private", "README.en.md", "PRIVACY.md", "PUBLISHING.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", ".github/workflows/windows.yml"]) assert.equal(permittedPackagePath(entry), false, entry);
+  for (const entry of ["app/server.mjs", "runtime/node/node.exe", "compile/Launcher.cs", "components/ffmpeg-package.json", "首次编译.cmd", "LICENSE", "README.md", "docs/README.en.md", "docs/CHANGELOG.md", ".github/SECURITY.md", ".github/CONTRIBUTING.md", "docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md"]) assert.equal(permittedPackagePath(entry), true, entry);
+});
+
+test("repository root keeps only essential files and grouped documentation remains readable", async () => {
+  const entries = await readdir(new URL("../", import.meta.url), { withFileTypes: true });
+  const allowed = new Set([".git", ".gitignore", "LICENSE", "README.md", "package.json", "package-lock.json", "server.mjs", "start.cmd"]);
+  for (const entry of entries.filter((item) => item.isFile())) assert.ok(allowed.has(entry.name), entry.name);
+  for (const file of ["docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md", "docs/CHANGELOG.md", "docs/README.en.md", ".github/SECURITY.md", ".github/CONTRIBUTING.md"]) {
+    assert.ok((await readFile(new URL("../" + file, import.meta.url))).length > 0, file);
+  }
 });
 
 test("release instructions derive their public version from the single internal version", async () => {
@@ -85,7 +94,8 @@ test("public package includes legal docs and records exact public identity witho
   const build = await readFile(new URL("../packaging/build-portable.mjs", import.meta.url), "utf8");
   assert.match(build, /packageMetadata\.name !== "media-tracker-public"/);
   assert.match(build, /packageMetadata\.license !== "MIT"/);
-  assert.match(build, /"PUBLISHING\.md", "PRIVACY\.md", "PUBLIC-EDITION\.md"/);
+  assert.match(build, /"docs\/PUBLISHING\.md", "docs\/PRIVACY\.md", "docs\/PUBLIC-EDITION\.md"/);
+  assert.match(build, /"\.github\/SECURITY\.md", "\.github\/CONTRIBUTING\.md"/);
   assert.match(build, /"LICENSE", file: "LICENSE"/);
   assert.match(build, /external publisher cache is read-only/);
   assert.match(build, /allowBuildDownload = false/);

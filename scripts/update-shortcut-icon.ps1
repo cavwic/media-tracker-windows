@@ -8,7 +8,14 @@ $ErrorActionPreference = 'Stop'
 $collectorToolRoot = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
 $collectorIconPath = Join-Path $collectorToolRoot 'public\media-tracker-v2.ico'
 if (-not (Test-Path -LiteralPath $collectorIconPath -PathType Leaf)) { throw 'Build the local icon assets before updating shortcuts.' }
-$collectorEntrypoints = @('start.vbs', 'start.cmd') | ForEach-Object { Join-Path $collectorToolRoot $_ }
+$collectorEntrypoints = @('scripts\start.vbs', 'start.cmd', 'start.vbs') | ForEach-Object { Join-Path $collectorToolRoot $_ }
+# Keep exact legacy owned shortcuts recognizable without accepting another
+# project, substring matches or extra arguments. This does not execute them.
+$collectorVbsArguments = @('scripts\start.vbs', 'start.vbs') | ForEach-Object {
+  $collectorVbsPath = Join-Path $collectorToolRoot $_
+  $collectorVbsPath
+  '"' + $collectorVbsPath + '"'
+}
 $collectorWscript = Join-Path $env:SystemRoot 'System32\wscript.exe'
 $collectorCscript = Join-Path $env:SystemRoot 'System32\cscript.exe'
 $collectorShell = New-Object -ComObject WScript.Shell
@@ -38,7 +45,7 @@ foreach ($collectorFolder in $collectorFolders) {
     if ($collectorTarget -ieq $collectorWscript -or $collectorTarget -ieq $collectorCscript) {
       # Only our exact launcher is accepted; no substring path matches and no
       # arbitrary command/extra arguments are interpreted or executed.
-      $collectorOwned = $collectorArgs.Trim() -ieq ('"' + $collectorEntrypoints[0] + '"') -or $collectorArgs.Trim() -ieq $collectorEntrypoints[0]
+      $collectorOwned = $collectorVbsArguments -contains $collectorArgs.Trim()
     }
     if (-not $collectorOwned) { continue }
     $collectorPrevious = $collectorShortcut.IconLocation

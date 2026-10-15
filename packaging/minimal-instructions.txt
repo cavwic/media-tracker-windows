@@ -14,4 +14,4 @@ Media Tracker / 采集工具 {{RELEASE_VERSION}}（Windows 10/11 x64）
 
 无需管理员权限，不安装到系统、不修改注册表。首次准备需要联网，取消或失败可稍后重试。移动软件时请保留整个文件夹；更新前先退出并备份 data 和媒体，不要公开上传登录资料或媒体。
 本工具未获平台自动采集许可，请遵守平台规则及内容权利。EXE 未签名，Windows 可能显示安全提示；不要关闭安全保护。相似去重可能误判，重要媒体请先备份。
-隐私和使用边界见 PRIVACY.md、PUBLIC-EDITION.md；第三方许可见 THIRD-PARTY-NOTICES.txt。
+隐私和使用边界见 docs/PRIVACY.md、docs/PUBLIC-EDITION.md；第三方许可见 THIRD-PARTY-NOTICES.txt。

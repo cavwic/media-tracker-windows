@@ -1,6 +1,6 @@
-![Media Tracker — Collect. Organize. Keep.](docs/images/media-tracker-banner.jpg)
+![Media Tracker — Collect. Organize. Keep.](images/media-tracker-banner.jpg)
 
-[简体中文](README.md) · [English](README.en.md)
+[简体中文](../README.md#user-content-readme-zh) · [English](../README.md#user-content-readme-en)
 
 # Media Tracker
 
@@ -29,15 +29,15 @@ For similarity checks, download the optional tools when prompted or select tools
 
 These are actual interface screenshots with fictional demo data, not evidence of real platform downloads. They contain no real accounts, login information, or collected media. Click an image for a larger view.
 
-![Account overview](docs/images/overview-en.png)
+![Account overview](images/overview-en.png)
 
 **Account overview**: View grouped platform accounts, sync status, and newly saved files.
 
-![Collection setup](docs/images/setup-en.png)
+![Collection setup](images/setup-en.png)
 
 **Collection setup**: Add multiple target accounts, choose what to sync, and keep each person's media and source records together.
 
-![Media and sources](docs/images/sources-en.png)
+![Media and sources](images/sources-en.png)
 
 **Source tracking**: View the platforms, accounts, and original posts associated with a saved file.
 
@@ -45,4 +45,4 @@ These are actual interface screenshots with fictional demo data, not evidence of
 
 This tool has not received platform authorization for automated collection. Follow platform rules and respect content rights. The EXE is unsigned, so Windows may display a security warning. Similarity checks can misidentify duplicates; back up important media first.
 
-[Privacy](PRIVACY.md) · [License](LICENSE) · [Usage boundaries](PUBLIC-EDITION.md) · [Contributing](CONTRIBUTING.md) · [Feedback](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [Security](SECURITY.md)
+[Privacy](PRIVACY.md) · [License](../LICENSE) · [Usage boundaries](PUBLIC-EDITION.md) · [Contributing](../.github/CONTRIBUTING.md) · [Feedback](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [Security](../.github/SECURITY.md)

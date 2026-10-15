@@ -11,6 +11,7 @@ import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 
 const root = new URL("../../", import.meta.url);
+const { version } = JSON.parse(await readFile(new URL("package.json", root), "utf8"));
 const imageDirectory = new URL("docs/images/", root);
 const origin = "http://127.0.0.1:54389";
 const assetNames = ["index.html", "app.js", "i18n.js", "i18n-dynamic.js", "theme-bootstrap.js", "styles.css", "media-tracker.svg"];
@@ -52,7 +53,7 @@ const sources = ["x", "instagram", "x"].map((platformId, index) => ({
 function modelFor(language, theme) {
   return {
     runtime: { label: "工具内置 Chromium", systemLanguage: language },
-    release: { edition: "public", channel: "minimal", version: "1.2.0" },
+    release: { edition: "public", channel: "minimal", version },
     settings: { language, theme }, platforms, persons: structuredClone(people),
     linkedAccounts: Object.keys(platforms).map((platformId) => ({ id: `demo-login-${platformId}`, platformId,
       platformLabel: platforms[platformId].label, label: `Demo · ${platforms[platformId].label}`, loginStatus: "verified" })),
@@ -126,7 +127,7 @@ try {
     await view.verify();
     await view.context.close();
 
-    view = await fixture(browser, language, "light");
+    view = await fixture(browser, language, "dark");
     await view.page.locator('.person-card[data-person-id="nova"] .edit-person').click();
     await view.page.locator('#person-dialog').waitFor({ state: "visible" });
     // Use the actual scrollable editor, showing its account controls beside the
@@ -136,7 +137,7 @@ try {
     await view.verify();
     await view.context.close();
 
-    view = await fixture(browser, language, "light");
+    view = await fixture(browser, language, "dark");
     await view.page.locator('.person-card[data-person-id="nova"] .browse-person-media').click();
     await view.page.locator('.media-library-row').first().waitFor();
     await view.page.locator('.file-sources-button').first().click();

@@ -16,6 +16,10 @@ const coverageResult = (overrides = {}) => ({ engine: "yt-dlp", scope: "account"
   coverageVersion: 1, coverageComplete: true, coverageReasons: [], unresolvedPosts: [], mediaCount: 1, knownSkipped: 0,
   postCount: 1, coveredPosts: [{ postId: "123", postUrl: record.postUrl, createdAt: record.createdAt, mediaComplete: true, expectedAttachmentCount: 1, observedCount: 1 }], ...overrides });
 
+test("missing custom engine points to the relocated source setup entry", () => {
+  assert.equal(new CustomDiscoveryError("engine-unavailable").message, "通用采集引擎尚未安装，请先运行 scripts\\setup-source-engines.cmd。");
+});
+
 function fixture(overrides = {}) {
   const calls = { exports: 0, workers: 0, disposed: 0 };
   return { calls, options: { platform, account,

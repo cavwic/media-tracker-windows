@@ -49,7 +49,7 @@
 
 本工具未获平台自动采集许可，请遵守平台规则及内容权利。EXE 未签名，Windows 可能显示安全提示；相似去重可能误判，重要媒体请先备份。
 
-[隐私](PRIVACY.md) · [许可证](LICENSE) · [使用边界](PUBLIC-EDITION.md) · [开发与贡献](CONTRIBUTING.md) · [反馈](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [安全问题](SECURITY.md)
+[隐私](docs/PRIVACY.md) · [许可证](LICENSE) · [使用边界](docs/PUBLIC-EDITION.md) · [开发与贡献](.github/CONTRIBUTING.md) · [反馈](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [安全问题](.github/SECURITY.md)
 
 </details>
 
@@ -100,6 +100,6 @@ These are actual interface screenshots with fictional demo data, not evidence of
 
 This tool has not received platform authorization for automated collection. Follow platform rules and respect content rights. The EXE is unsigned, so Windows may display a security warning. Similarity checks can misidentify duplicates; back up important media first.
 
-[Privacy](PRIVACY.md) · [License](LICENSE) · [Usage boundaries](PUBLIC-EDITION.md) · [Contributing](CONTRIBUTING.md) · [Feedback](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [Security](SECURITY.md)
+[Privacy](docs/PRIVACY.md) · [License](LICENSE) · [Usage boundaries](docs/PUBLIC-EDITION.md) · [Contributing](.github/CONTRIBUTING.md) · [Feedback](https://github.com/cavwic/media-tracker-windows/issues/new/choose) · [Security](.github/SECURITY.md)
 
 </details>

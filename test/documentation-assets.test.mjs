@@ -1,5 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import { readFile } from "node:fs/promises";
 import { documentationFiles, documentationImages } from "../packaging/documentation-files.mjs";
 import { permittedSourcePath } from "../packaging/export-github-source.mjs";
@@ -10,7 +12,7 @@ test("only reviewed documentation images are allowed into source publication", (
   assert.equal(Object.isFrozen(documentationFiles), true);
   assert.equal(documentationImages.length, 7);
   assert.equal(new Set(documentationFiles).size, documentationFiles.length);
-  assert.deepEqual(documentationFiles, ["README.en.md", ...documentationImages]);
+  assert.deepEqual(documentationFiles, ["docs/README.en.md", ...documentationImages]);
   for (const file of documentationFiles) {
     assert.equal(permittedSourcePath(file), true, file);
     assert.equal(permittedPackagePath(file), true, file);
@@ -25,9 +27,17 @@ test("bilingual readmes use professional headings, matching screenshots and vali
   const englishHeadings = ["Highlights", "Overview", "Quick start", "Interface preview"];
   for (const [file, language, headings] of [
     ["README.md", "both", [...chineseHeadings, ...englishHeadings]],
-    ["README.en.md", "en", englishHeadings],
+    ["docs/README.en.md", "en", englishHeadings],
   ]) {
-    const text = await readFile(new URL("../" + file, import.meta.url), "utf8");
+    const project = new URL("../", import.meta.url);
+    const document = new URL(file, project);
+    const resolveLink = (link) => {
+      const target = new URL(link, document);
+      const relative = path.relative(fileURLToPath(project), fileURLToPath(target));
+      assert.ok(relative && !path.isAbsolute(relative) && relative !== ".." && !relative.startsWith(".." + path.sep), link);
+      return { target, relative: relative.split(path.sep).join("/") };
+    };
+    const text = await readFile(document, "utf8");
     assert.deepEqual(text.match(/^## .+$/gm), headings.map((heading) => "## " + heading));
     if (language === "both") {
       assert.doesNotMatch(text, /\]\(README\.en\.md/);
@@ -42,12 +52,11 @@ test("bilingual readmes use professional headings, matching screenshots and vali
     assert.match(text, /首次编译\.cmd/);
     assert.match(text, /采集工具\.exe/);
     assert.doesNotMatch(text, /公开最小版|最小公开版|后续计划|本版内容|## 是什么|## 能做什么|## 怎么用/);
-    const images = [...text.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]);
+    const images = [...text.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => resolveLink(match[1]).relative);
     const languages = language === "both" ? ["zh", "en"] : [language];
     assert.deepEqual(images, [documentationImages[0], ...languages.flatMap((locale) => ["overview", "setup", "sources"].map((name) => `docs/images/${name}-${locale}.png`))]);
     for (const match of text.matchAll(/\]\((?!https?:)([^)#]+)(?:#[^)]*)?\)/g)) {
-      assert.equal(match[1].startsWith("../"), false);
-      await readFile(new URL("../" + match[1], import.meta.url));
+      await readFile(resolveLink(match[1]).target);
     }
     assert.match(text, /fictional demo data/);
     assert.match(text, /not received platform authorization/);
@@ -80,4 +89,10 @@ test("portable builder fingerprints and copies the same reviewed bilingual docum
   const build = await readFile(new URL("../packaging/build-portable.mjs", import.meta.url), "utf8");
   assert.match(build, /documentationFiles\.map\(\(name\) => \(\{ source: name, file: name \}\)\)/);
   assert.match(build, /for \(const name of documentationFiles\) await copyTree/);
+});
+
+test("all documentation screenshot views use the same dark theme", async () => {
+  const capture = await readFile(new URL("fixtures/capture-readme-screenshots.mjs", import.meta.url), "utf8");
+  assert.equal([...capture.matchAll(/fixture\(browser, language, "dark"\)/g)].length, 3);
+  assert.doesNotMatch(capture, /fixture\(browser, language, "light"\)/);
 });

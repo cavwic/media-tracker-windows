@@ -894,7 +894,7 @@
     "去重组件下载或读取失败，请检查网络后重试或指定已有工具目录。": "Tool download or reading failed. Check the network and retry, or select an existing tool folder.",
     "去重组件校验失败，未安装。请重新获取完整发布包。": "Tool package verification failed. Nothing was installed. Obtain a complete release package again.",
     "组件安装位置已被占用，原目录未修改。": "The tool installation location is occupied. The original folder was not changed.",
-    "通用采集引擎尚未安装，请先运行 setup-source-engines.cmd。": "The generic collection engine is not installed. Run setup-source-engines.cmd first.",
+    "通用采集引擎尚未安装，请先运行 scripts\\setup-source-engines.cmd。": "The generic collection engine is not installed. Run scripts\\setup-source-engines.cmd first.",
     "该自定义平台仅登记信息，尚未启用可用的采集引擎。": "This custom platform only stores information. A working collection engine has not been enabled.",
     "现有通用引擎不支持这个主页链接；可保存平台信息，但不能将其标记为同步成功。": "The generic engine does not support this profile URL. Platform information can be saved, but sync cannot be marked successful.",
     "发现的媒体暂不能直接保存；当前通用模式支持图片和完整 MP4，不支持 HLS/DASH 或需合并音视频的格式。": "The discovered media cannot be saved directly yet. Generic mode supports images and complete MP4 files, not HLS/DASH or formats requiring separate audio and video to be merged.",

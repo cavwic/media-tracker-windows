@@ -142,7 +142,7 @@ test("source fingerprint uses deterministic field/order without locale sorting",
 test("bilingual documentation and its reviewed media remain bound to source and ZIP audits", async (t) => {
   const f = await fixture(t);
   const extras = [];
-  for (const [file, content] of [["README.en.md", "# Media Tracker\n"], ["docs/images/setup-en.png", "isolated documentation image fixture"]]) {
+  for (const [file, content] of [["docs/README.en.md", "# Media Tracker\n"], ["docs/images/setup-en.png", "isolated documentation image fixture"], [".github/SECURITY.md", "# Security policy\n"]]) {
     const data = Buffer.from(content);
     for (const root of [f.sourceRoot, f.directory]) {
       await mkdir(path.dirname(path.join(root, file)), { recursive: true });
@@ -158,7 +158,7 @@ test("bilingual documentation and its reviewed media remain bound to source and 
   const normal = await f.save();
   await f.save({ entries: [...normal, ...extras] });
   assert.deepEqual((await auditRelease(f)).checks, { manifest: true, source: true, zip: true });
-  await writeFile(path.join(f.directory, "README.en.md"), "changed guide");
+  await writeFile(path.join(f.directory, "docs", "README.en.md"), "changed guide");
   await assert.rejects(auditRelease(f), /integrity/);
 });
 

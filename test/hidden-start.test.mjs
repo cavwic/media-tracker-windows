@@ -94,12 +94,12 @@ async function fixture(directory, name, executable, overrides = {}) {
   await mkdir(data);
   await copyFile(path.join(root, "scripts", "start-hidden.ps1"), path.join(project, "scripts", "start-hidden.ps1"));
   await copyFile(path.join(root, "scripts", "start-service.mjs"), path.join(project, "scripts", "start-service.mjs"));
-  let vbs = await readFile(path.join(root, "start.vbs"), "utf8");
+  let vbs = await readFile(path.join(root, "scripts", "start.vbs"), "utf8");
   // This is the exact WScript entry flow, with only the documented fixture
   // switch appended. A failed regression must never leave a modal user window.
   vbs = vbs.replace('\\scripts\\start-hidden.ps1"""', '\\scripts\\start-hidden.ps1"" -NoErrorDialog"');
   assert.match(vbs, /start-hidden\.ps1"" -NoErrorDialog"/);
-  await writeFile(path.join(project, "start.vbs"), vbs);
+  await writeFile(path.join(project, "scripts", "start.vbs"), vbs);
   await copyFile(path.join(root, "start.cmd"), path.join(project, "start.cmd"));
   await writeFile(path.join(project, "node_modules", "playwright", "package.json"), "{}");
   await writeFile(path.join(project, "server.mjs"), "// Fixture node.exe reports this path; never starts a server.\n");
@@ -139,13 +139,13 @@ async function assertPreserved(item) {
 }
 
 test("daily Windows entry is WScript with hidden PowerShell; CMD only hands off", async () => {
-  const vbs = await readFile(path.join(root, "start.vbs"), "utf8");
+  const vbs = await readFile(path.join(root, "scripts", "start.vbs"), "utf8");
   const cmd = await readFile(path.join(root, "start.cmd"), "utf8");
   const launcher = await readFile(path.join(root, "scripts", "start-hidden.ps1"), "utf8");
-  assert.match(vbs, /WScript\.ScriptFullName/);
+  assert.match(vbs, /GetParentFolderName\(launcherFiles\.GetParentFolderName\(WScript\.ScriptFullName\)\)/);
   assert.match(vbs, /-NoProfile -NonInteractive -STA -ExecutionPolicy Bypass -WindowStyle Hidden -File/);
   assert.match(vbs, /launcherShell\.Run launcherCommand, 0, False/);
-  assert.match(cmd, /"%SystemRoot%\\System32\\wscript\.exe" "%~dp0start\.vbs"/);
+  assert.match(cmd, /"%SystemRoot%\\System32\\wscript\.exe" "%~dp0scripts\\start\.vbs"/);
   assert.match(cmd, /exit \/b %errorlevel%/);
   assert.doesNotMatch(cmd, /(?:^|\n)\s*(?:call\s+)?(?:node|npm|npx|pause)\b/i);
   assert.match(launcher, /UseShellExecute = \$false/);
@@ -154,6 +154,17 @@ test("daily Windows entry is WScript with hidden PowerShell; CMD only hands off"
   assert.match(launcher, /CopyToAsync\(\$collectorErrStream\)/);
   assert.doesNotMatch(launcher, /cmd\.exe|\/c\b|Start-Process|Stop-Process|Remove-Item|taskkill/i);
   assert.equal([...launcher].every((character) => character.codePointAt(0) < 128), true, "PowerShell 5.1 source requires no UTF-8 BOM assumptions");
+});
+
+test("source maintenance entry scripts resolve sibling helpers and the project root after relocation", async () => {
+  for (const [filename, helper] of [["clean-cache.cmd", "clean-browser-cache.mjs"], ["setup-source-engines.cmd", "setup-sources.ps1"]]) {
+    const script = await readFile(path.join(root, "scripts", filename), "utf8");
+    assert.match(script, /cd \/d "%~dp0\.\."/);
+    assert.ok(script.includes(`"%~dp0${helper}"`));
+    assert.doesNotMatch(script, /%~dp0scripts\\/);
+    await assert.rejects(readFile(path.join(root, filename)), { code: "ENOENT" });
+  }
+  await assert.rejects(readFile(path.join(root, "start.vbs")), { code: "ENOENT" });
 });
 
 test("hidden launcher parses in Windows PowerShell 5.1", { skip: process.platform !== "win32" }, async () => {
@@ -290,7 +301,7 @@ test("offline hidden entry preserves Unicode paths, environment and files withou
 
   await t.test("actual WScript entry launches the hidden offline fixture from a Unicode and spaced directory", async () => {
     const item = await fixture(directory, "wscript", executable);
-    const result = await run(wscript, [path.join(item.project, "start.vbs")], { cwd: directory, env: item.env, windowsHide: true, timeout: 10_000 });
+    const result = await run(wscript, [path.join(item.project, "scripts", "start.vbs")], { cwd: directory, env: item.env, windowsHide: true, timeout: 10_000 });
     assert.equal(result.stdout, "");
     assert.equal(result.stderr, "");
     let output;
@@ -304,6 +315,27 @@ test("offline hidden entry preserves Unicode paths, environment and files withou
     assert.match(output.stdout, /CONSOLE_HANDLE=0/);
     assert.equal(field(output.stdout, "CWD"), item.project);
     assert.equal(field(output.stdout, "MEDIA_TRACKER_BACKGROUND_START"), "1");
+    await assertPreserved(item);
+  });
+
+  await t.test("root CMD compatibility entry hands off to the relocated WScript without changing the project root", async () => {
+    const item = await fixture(directory, "cmd-handoff", executable);
+    const command = '""' + path.join(item.project, "start.cmd") + '""';
+    const result = await run(path.join(process.env.SystemRoot || "C:\\Windows", "System32", "cmd.exe"), ["/d", "/s", "/c", command],
+      { cwd: directory, env: item.env, windowsHide: true, windowsVerbatimArguments: true, timeout: 10_000 });
+    assert.equal(result.stdout, "");
+    assert.equal(result.stderr, "");
+    let output;
+    const deadline = Date.now() + 10_000;
+    while (Date.now() < deadline) {
+      output = await logs(item).catch(() => null);
+      if (output?.stdout.includes("stdout-中文") && output?.stderr.includes("stderr-中文")) break;
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    assert.ok(output, "Root CMD entry generated hidden startup logs");
+    assert.match(output.stdout, /CONSOLE_HANDLE=0/);
+    assert.equal(field(output.stdout, "CWD"), item.project);
+    assert.equal(field(output.stdout, "BOOTSTRAP"), path.join(item.project, "scripts", "start-service.mjs"));
     await assertPreserved(item);
   });
 

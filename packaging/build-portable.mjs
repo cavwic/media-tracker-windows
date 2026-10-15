@@ -19,7 +19,7 @@ const pinnedNode = { version: "24.14.1", file: "node-v24.14.1-win-x64.zip",
 const scripts = ["start-service.mjs", "prepare-portable-runtime.mjs", "windows-file-action.ps1", "windows-media-open.cs", "windows-app-frame.cs", "tiktok-background-browser.ps1",
   "media-source-worker.py", "source-engines-requirements.txt", "rebuild-readable-names.mjs", "import-backup.mjs", "clean-browser-cache.mjs", "windows-folder-open.ps1"];
 const pythonModules = ["yt_dlp", "requests", "certifi", "charset_normalizer", "idna", "urllib3"];
-const releaseDocuments = ["PUBLISHING.md", "PRIVACY.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md"];
+const releaseDocuments = ["docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md", ".github/SECURITY.md", ".github/CONTRIBUTING.md", "docs/CHANGELOG.md"];
 const windowsPowerShell = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "WindowsPowerShell", "v1.0", "powershell.exe");
 const quotePs = (value) => "'" + String(value).replaceAll("'", "''") + "'";
 

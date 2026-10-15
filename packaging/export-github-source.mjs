@@ -7,14 +7,12 @@ import { documentationImages } from "./documentation-files.mjs";
 // A source publication is a fresh allowlisted export, never the developer
 // working directory or a recursive copy of it. Runtime and user data are not
 // allowed even when .gitignore would normally hide them.
-const roots = new Set([".gitignore", "LICENSE", "README.md", "README.en.md", "PRIVACY.md", "PUBLIC-EDITION.md", "PUBLISHING.md",
-  "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", "package.json", "package-lock.json", "server.mjs",
-  "start.cmd", "start.vbs", "clean-cache.cmd", "setup-source-engines.cmd"]);
+const roots = new Set([".gitignore", "LICENSE", "README.md", "package.json", "package-lock.json", "server.mjs", "start.cmd"]);
 const scripts = new Set(["build-icons.mjs", "clean-browser-cache.mjs", "import-backup.mjs", "media-source-worker.py",
   "prepare-portable-runtime.mjs", "probe-tiktok.mjs", "rebuild-readable-names.mjs", "setup-sources.ps1",
   "source-engines-requirements.txt", "start-hidden.ps1", "start-service.mjs", "tiktok-background-browser.ps1",
   "update-shortcut-icon.ps1", "windows-app-frame.cs", "windows-file-action.ps1", "windows-folder-open.ps1",
-  "windows-media-open.cs", "publish-github.mjs"]);
+  "windows-media-open.cs", "publish-github.mjs", "start.vbs", "clean-cache.cmd", "setup-source-engines.cmd"]);
 const packaging = new Set(["archive-historical-releases.mjs", "audit-release.mjs", "bootstrap-node.json", "build-portable.mjs", "clean-historical-releases.mjs",
   "export-github-source.mjs", "documentation-files.mjs", "ffmpeg-package.json", "minimal-instructions.txt", "portable-instructions.txt",
   "release-source.mjs", "release-version.mjs", "release-workflow.md", "runtime-manifest.json", "third-party-notices.txt",

@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 const MAX_CENTRAL_BYTES = 64 * 1024 * 1024;
 const MAX_FILE_BYTES = 1024 * 1024 * 1024;
 const HEX = /^[a-f0-9]{64}$/;
-const topLevel = new Set(["首次编译.cmd", "使用说明.txt", "THIRD-PARTY-NOTICES.txt", "LICENSE", "README.md", "release-manifest.json",
+const topLevel = new Set(["首次编译.cmd", "使用说明.txt", "THIRD-PARTY-NOTICES.txt", "LICENSE", "README.md", "README.en.md", "release-manifest.json",
   "PUBLISHING.md", "PRIVACY.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md"]);
 const crcTable = Array.from({ length: 256 }, (_, value) => {
   for (let bit = 0; bit < 8; bit++) value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;

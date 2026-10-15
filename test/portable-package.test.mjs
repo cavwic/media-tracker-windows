@@ -5,7 +5,7 @@ import { buildPortable, permittedPackagePath, renderReleaseInstructions } from "
 
 test("release whitelist excludes all source private state and startup entries", () => {
   for (const entry of ["data/state.json", "data/browser-profiles/Cookies", ".runtime/venv", "start.cmd", "采集工具.lnk", "server.out.log", "test/a.mjs", "app/../data/state.json", "/app/server.mjs", "app/server.mjs:ads", "app\\private"]) assert.equal(permittedPackagePath(entry), false);
-  for (const entry of ["app/server.mjs", "runtime/node/node.exe", "compile/Launcher.cs", "components/ffmpeg-package.json", "首次编译.cmd", "LICENSE", "README.md", "PUBLISHING.md", "PRIVACY.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", "docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md"]) assert.equal(permittedPackagePath(entry), true);
+  for (const entry of ["app/server.mjs", "runtime/node/node.exe", "compile/Launcher.cs", "components/ffmpeg-package.json", "首次编译.cmd", "LICENSE", "README.md", "README.en.md", "PUBLISHING.md", "PRIVACY.md", "PUBLIC-EDITION.md", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", "docs/PUBLISHING.md", "docs/PRIVACY.md", "docs/PUBLIC-EDITION.md"]) assert.equal(permittedPackagePath(entry), true);
 });
 
 test("release instructions derive their public version from the single internal version", async () => {
@@ -25,7 +25,8 @@ test("user documentation stays concise while publication rules remain in the mai
   const readme = await readFile(new URL("../README.md", import.meta.url), "utf8");
   const instructions = await readFile(new URL("../packaging/minimal-instructions.txt", import.meta.url), "utf8");
   for (const text of [readme, instructions]) {
-    for (const heading of ["是什么", "能做什么", "怎么用"]) assert.ok(text.includes(heading), heading);
+    for (const heading of ["产品简介", "快速上手"]) assert.ok(text.includes(heading), heading);
+    assert.doesNotMatch(text, /^(?:## )?(?:是什么|能做什么|怎么用)$/m);
     assert.doesNotMatch(text, /公开最小版|最小公开版|本版内容|后续计划|版本与来源|release\/history/);
     assert.match(text, /Windows/);
     assert.match(text, /首次编译\.cmd/);

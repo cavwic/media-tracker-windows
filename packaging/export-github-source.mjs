@@ -2,11 +2,12 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { lstat, realpath, readdir, mkdir, readFile, writeFile } from "node:fs/promises";
+import { documentationImages } from "./documentation-files.mjs";
 
 // A source publication is a fresh allowlisted export, never the developer
 // working directory or a recursive copy of it. Runtime and user data are not
 // allowed even when .gitignore would normally hide them.
-const roots = new Set([".gitignore", "LICENSE", "README.md", "PRIVACY.md", "PUBLIC-EDITION.md", "PUBLISHING.md",
+const roots = new Set([".gitignore", "LICENSE", "README.md", "README.en.md", "PRIVACY.md", "PUBLIC-EDITION.md", "PUBLISHING.md",
   "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md", "package.json", "package-lock.json", "server.mjs",
   "start.cmd", "start.vbs", "clean-cache.cmd", "setup-source-engines.cmd"]);
 const scripts = new Set(["build-icons.mjs", "clean-browser-cache.mjs", "import-backup.mjs", "media-source-worker.py",
@@ -15,11 +16,11 @@ const scripts = new Set(["build-icons.mjs", "clean-browser-cache.mjs", "import-b
   "update-shortcut-icon.ps1", "windows-app-frame.cs", "windows-file-action.ps1", "windows-folder-open.ps1",
   "windows-media-open.cs", "publish-github.mjs"]);
 const packaging = new Set(["archive-historical-releases.mjs", "audit-release.mjs", "bootstrap-node.json", "build-portable.mjs", "clean-historical-releases.mjs",
-  "export-github-source.mjs", "ffmpeg-package.json", "minimal-instructions.txt", "portable-instructions.txt",
+  "export-github-source.mjs", "documentation-files.mjs", "ffmpeg-package.json", "minimal-instructions.txt", "portable-instructions.txt",
   "release-source.mjs", "release-version.mjs", "release-workflow.md", "runtime-manifest.json", "third-party-notices.txt",
   "verify-node-bootstrap.cs", "verify-portable.mjs", "local-compile/Launcher.cs", "local-compile/build.ps1",
   "local-compile/launcher.manifest", "local-compile/首次编译.cmd"]);
-const binaryFiles = new Set(["public/media-tracker-v2.ico", "public/media-tracker-256.png", "lib/app-themes/dark/Cached Theme.pak"]);
+const binaryFiles = new Set(["public/media-tracker-v2.ico", "public/media-tracker-256.png", "lib/app-themes/dark/Cached Theme.pak", ...documentationImages]);
 const textExtension = /\.(?:mjs|js|json|html|css|svg|md|txt|ps1|py|cs|cmd|vbs|manifest|yml|yaml)$/i;
 const forbiddenParts = /^(?:data|node_modules|runtime|\.runtime|\.cache|verification|history|release|tools|components|__pycache__|\.qa-data|\.qa-output)$/i;
 const MAX_FILE_BYTES = 5 * 1024 * 1024;

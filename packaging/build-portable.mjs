@@ -10,6 +10,7 @@ import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import { captureReleaseSource, assertUnchangedSource } from "./release-source.mjs";
 import { parseReleaseVersion } from "./release-version.mjs";
+import { documentationFiles } from "./documentation-files.mjs";
 
 const run = promisify(execFile);
 const project = path.resolve(import.meta.dirname, "..");
@@ -25,7 +26,7 @@ const quotePs = (value) => "'" + String(value).replaceAll("'", "''") + "'";
 export function permittedPackagePath(value) {
   if (typeof value !== "string" || !value || /[\\:\0]/.test(value) || value.startsWith("/") || value.split("/").some((part) => !part || part === "." || part === "..")) return false;
   return value === "首次编译.cmd" || value === "使用说明.txt" || value === "THIRD-PARTY-NOTICES.txt"
-    || value === "LICENSE" || value === "README.md" || releaseDocuments.includes(value)
+    || value === "LICENSE" || value === "README.md" || releaseDocuments.includes(value) || documentationFiles.includes(value)
     || value === "release-manifest.json" || /^(?:app|compile|runtime|components|licenses|docs)\//.test(value);
 }
 export function renderReleaseInstructions(template, version) {
@@ -106,6 +107,7 @@ export async function buildPortable({ output, browserCache = path.join(process.e
     { source: "packaging/third-party-notices.txt", file: "THIRD-PARTY-NOTICES.txt" },
     { source: "LICENSE", file: "LICENSE" },
     { source: "README.md", file: "README.md" },
+    ...documentationFiles.map((name) => ({ source: name, file: name })),
     ...releaseDocuments.map((name) => ({ source: name, file: name })),
     ...(!includeRuntime ? [{ source: "packaging/runtime-manifest.json", file: "components/runtime-manifest.json" }] : []),
   ];
@@ -201,6 +203,7 @@ export async function buildPortable({ output, browserCache = path.join(process.e
     await copyTree(path.join(project, "packaging", "third-party-notices.txt"), path.join(target, "THIRD-PARTY-NOTICES.txt"));
     await copyTree(path.join(project, "LICENSE"), path.join(target, "LICENSE"));
     await copyTree(path.join(project, "README.md"), path.join(target, "README.md"));
+    for (const name of documentationFiles) await copyTree(path.join(project, ...name.split("/")), path.join(target, ...name.split("/")));
     for (const name of releaseDocuments) await copyTree(path.join(project, name), path.join(target, name));
     // The slim artifact must stay unprepared and free of author data. Its
     // pinned downloaded runtime is tested in a separate, disposable fixture.

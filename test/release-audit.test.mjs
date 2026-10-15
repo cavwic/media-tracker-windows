@@ -139,6 +139,29 @@ test("source fingerprint uses deterministic field/order without locale sorting",
   assert.equal(sourceFingerprint([a, b]), sourceFingerprint([b, a]));
 });
 
+test("bilingual documentation and its reviewed media remain bound to source and ZIP audits", async (t) => {
+  const f = await fixture(t);
+  const extras = [];
+  for (const [file, content] of [["README.en.md", "# Media Tracker\n"], ["docs/images/setup-en.png", "isolated documentation image fixture"]]) {
+    const data = Buffer.from(content);
+    for (const root of [f.sourceRoot, f.directory]) {
+      await mkdir(path.dirname(path.join(root, file)), { recursive: true });
+      await writeFile(path.join(root, file), data);
+    }
+    const saved = { file, bytes: data.length, sha256: hash(data) };
+    f.manifest.files.push(saved);
+    f.manifest.source.files.push({ source: file, ...saved });
+    extras.push({ name: path.basename(f.directory) + "/" + file, data });
+  }
+  f.manifest.source.fileCount = f.manifest.source.files.length;
+  f.manifest.source.fingerprint = sourceFingerprint(f.manifest.source.files);
+  const normal = await f.save();
+  await f.save({ entries: [...normal, ...extras] });
+  assert.deepEqual((await auditRelease(f)).checks, { manifest: true, source: true, zip: true });
+  await writeFile(path.join(f.directory, "README.en.md"), "changed guide");
+  await assert.rejects(auditRelease(f), /integrity/);
+});
+
 test("audit accepts .NET Windows separators and deflate data descriptors", async (t) => {
   const f = await fixture(t);
   await f.save({ windows: true, descriptor: true });

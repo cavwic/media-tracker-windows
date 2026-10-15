@@ -21,8 +21,8 @@ async function fixture(t) {
 test("source whitelist rejects credentials, runtime, logs, history and live probes", () => {
   for (const file of ["data/state.json", "node_modules/a.js", "runtime/node/node.exe", "packaging/.cache/cache.zip",
     "packaging/verification/receipt.json", "release/history/old.zip", "scripts/probe-meta.mjs", "scripts/verify-ui.mjs",
-    "test/fixture.log", "test/../data/state.json", "lib/link.exe", "lib/data/state.json"]) assert.equal(permittedSourcePath(file), false, file);
-  for (const file of ["LICENSE", "README.md", "lib/example.mjs", "test/example.test.mjs", "public/styles.css",
+    "test/fixture.log", "test/../data/state.json", "lib/link.exe", "lib/data/state.json", "docs/images/private-screenshot.png", "docs/images/login.jpg"]) assert.equal(permittedSourcePath(file), false, file);
+  for (const file of ["LICENSE", "README.md", "README.en.md", "docs/images/media-tracker-banner.jpg", "docs/images/setup-en.png", "packaging/documentation-files.mjs", "lib/example.mjs", "test/example.test.mjs", "public/styles.css",
     "packaging/local-compile/Launcher.cs", ".github/workflows/windows.yml", "scripts/publish-github.mjs"]) assert.equal(permittedSourcePath(file), true, file);
 });
 

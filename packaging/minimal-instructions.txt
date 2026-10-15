@@ -10,7 +10,7 @@ Media Tracker / 采集工具 {{RELEASE_VERSION}}（Windows 10/11 x64）
 相似去重组件可按需下载或选择已有工具；暂不准备也不影响采集和精确去重。去重在本机完成，不上传媒体，也不调用 AI 服务。
 
 界面与详细说明
-中文说明及截图见 README.md；English guide and screenshots: README.en.md。
+中英文说明与截图均在 README.md，展开所需语言即可。Open your language on README.md.
 
 无需管理员权限，不安装到系统、不修改注册表。首次准备需要联网，取消或失败可稍后重试。移动软件时请保留整个文件夹；更新前先退出并备份 data 和媒体，不要公开上传登录资料或媒体。
 本工具未获平台自动采集许可，请遵守平台规则及内容权利。EXE 未签名，Windows 可能显示安全提示；不要关闭安全保护。相似去重可能误判，重要媒体请先备份。

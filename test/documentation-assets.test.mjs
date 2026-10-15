@@ -21,26 +21,42 @@ test("only reviewed documentation images are allowed into source publication", (
 });
 
 test("bilingual readmes use professional headings, matching screenshots and valid local links", async () => {
+  const chineseHeadings = ["产品亮点", "产品简介", "快速上手", "界面预览"];
+  const englishHeadings = ["Highlights", "Overview", "Quick start", "Interface preview"];
   for (const [file, language, headings] of [
-    ["README.md", "zh", ["产品亮点", "产品简介", "快速上手", "界面预览"]],
-    ["README.en.md", "en", ["Highlights", "Overview", "Quick start", "Interface preview"]],
+    ["README.md", "both", [...chineseHeadings, ...englishHeadings]],
+    ["README.en.md", "en", englishHeadings],
   ]) {
     const text = await readFile(new URL("../" + file, import.meta.url), "utf8");
     assert.deepEqual(text.match(/^## .+$/gm), headings.map((heading) => "## " + heading));
-    assert.match(text, /README\.en\.md/);
+    if (language === "both") {
+      assert.doesNotMatch(text, /\]\(README\.en\.md/);
+      assert.deepEqual([...text.matchAll(/<details name="readme-language"( open)?>/g)].map((match) => Boolean(match[1])), [true, false]);
+      for (const locale of ["zh", "en"]) {
+        assert.ok(text.includes(`href="#user-content-readme-${locale}"`));
+        assert.ok(text.includes(`<a name="readme-${locale}"></a>`));
+      }
+      assert.doesNotMatch(text, /<script|<style|onclick=/i);
+    }
     assert.match(text, /Windows 10\/11 x64/);
     assert.match(text, /首次编译\.cmd/);
     assert.match(text, /采集工具\.exe/);
     assert.doesNotMatch(text, /公开最小版|最小公开版|后续计划|本版内容|## 是什么|## 能做什么|## 怎么用/);
     const images = [...text.matchAll(/!\[[^\]]*\]\(([^)]+)\)/g)].map((match) => match[1]);
-    assert.deepEqual(images, [documentationImages[0], ...["overview", "setup", "sources"].map((name) => `docs/images/${name}-${language}.png`)]);
+    const languages = language === "both" ? ["zh", "en"] : [language];
+    assert.deepEqual(images, [documentationImages[0], ...languages.flatMap((locale) => ["overview", "setup", "sources"].map((name) => `docs/images/${name}-${locale}.png`))]);
     for (const match of text.matchAll(/\]\((?!https?:)([^)#]+)(?:#[^)]*)?\)/g)) {
       assert.equal(match[1].startsWith("../"), false);
       await readFile(new URL("../" + match[1], import.meta.url));
     }
-    assert.match(text, language === "zh" ? /虚构演示数据/ : /fictional demo data/);
-    assert.match(text, language === "zh" ? /未获平台自动采集许可/ : /not received platform authorization/);
-    assert.match(text, language === "zh" ? /未签名/ : /unsigned/);
+    assert.match(text, /fictional demo data/);
+    assert.match(text, /not received platform authorization/);
+    assert.match(text, /unsigned/);
+    if (language === "both") {
+      assert.match(text, /虚构演示数据/);
+      assert.match(text, /未获平台自动采集许可/);
+      assert.match(text, /未签名/);
+    }
   }
 });
 

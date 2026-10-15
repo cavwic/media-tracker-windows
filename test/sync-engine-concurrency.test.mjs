@@ -25,6 +25,67 @@ function gate(signal) {
   return { promise, release };
 }
 
+test("overlapping history rechecks share one job across state reads and active discovery", async (t) => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "media-tracker-recheck-overlap-"));
+  const person = { id: "person", name: "Person", folderPath: path.join(root, "person"),
+    platforms: [{ id: "x", label: "X", accounts: [{ id: "target", label: "@fixture" }] }] };
+  await mkdir(person.folderPath);
+  const state = { persons: [person], linkedAccounts: [] };
+  let releaseLoads, releaseDiscovery, stateReads = 0, discoveries = 0;
+  const loadsHeld = new Promise((resolve) => { releaseLoads = resolve; });
+  const manager = new SyncManager({ indexFile: path.join(root, "sync-index.json"),
+    loadState: async () => {
+      // Both callers pass the initial active-job lookup before either state
+      // read resolves. This deterministically exercises the second lookup.
+      if (++stateReads <= 2) await loadsHeld;
+      return state;
+    },
+    discoverers: { x: async ({ signal }) => {
+      discoveries++;
+      const held = gate(signal); releaseDiscovery = held.release;
+      await held.promise;
+      return { posts: [], media: [], complete: true, reachedEnd: true, completionReason: "terminal-page" };
+    } },
+    download: async () => { throw new Error("The offline recheck must not download media"); },
+  });
+  let starts = [];
+  t.after(async () => {
+    releaseLoads(); releaseDiscovery?.();
+    await Promise.allSettled(starts);
+    await manager.shutdown();
+    await rm(root, { recursive: true, force: true });
+  });
+  starts = [manager.start(person.id, { forceHistory: true }), manager.start(person.id, { forceHistory: true })];
+  await waitFor(() => stateReads === 2, "Both rechecks did not reach the held state reads");
+  assert.equal(manager.jobs.size, 0, "Neither held state read can create a job early");
+  releaseLoads();
+  const results = await Promise.all(starts);
+  assert.deepEqual(results.map(({ existing }) => existing).sort(), [false, true]);
+  assert.equal(results[0].job.id, results[1].job.id, "Overlapping rechecks must return the same job");
+  for (const { job } of results) {
+    assert.equal(job.personId, person.id);
+    assert.equal(job.forceHistory, true);
+  }
+  await waitFor(() => discoveries === 1, "The recheck discovery did not start");
+  const readsWhileRunning = stateReads;
+  const running = await manager.start(person.id, { forceHistory: true });
+  assert.equal(running.existing, true, "An active discovery must reuse its job without another state read");
+  assert.equal(stateReads, readsWhileRunning);
+  assert.equal(running.job.id, results[0].job.id);
+  assert.equal(running.job.forceHistory, true);
+  assert.equal(manager.jobs.size, 1);
+  assert.equal(discoveries, 1, "Duplicate starts must not invoke another discovery");
+  releaseDiscovery();
+  await waitFor(() => manager.activeJobIds.size === 0, "The released history recheck did not settle");
+  const finished = manager.get(running.job.id);
+  assert.equal(finished.status, "completed");
+  assert.equal(finished.forceHistory, true);
+  assert.equal(finished.counters.accountsFinished, 1);
+  assert.equal(finished.counters.failed, 0);
+  assert.equal(manager.jobs.size, 1);
+  assert.equal(discoveries, 1);
+});
+
 test("actual account discovery runs every independent person concurrently while shared-login leases stay FIFO by arrival", async (t) => {
   const root = await mkdtemp(path.join(os.tmpdir(), "media-tracker-concurrency-"));
   const people = ["a", "b", "c", "d", "e", "f", "g"].map((id) => ({

@@ -146,18 +146,18 @@ test("one-click dedup API accepts confirmation only, preserves bindings, and sto
   assert.equal((await request(`persons/${person.id}/recheck`, { confirm: true }, "https://untrusted.example")).status, 403);
   assert.equal((await request("persons/unknown/recheck", { confirm: true })).status, 404);
   assert.deepEqual(await readFile(stateFile), stateBefore, "invalid recheck requests cannot rewrite bindings or persons");
-  const rechecks = await Promise.all([
-    request(`persons/${person.id}/recheck`, { confirm: true }),
-    request(`persons/${person.id}/recheck`, { confirm: true }),
-  ]);
-  assert.deepEqual(rechecks.map((response) => response.status).sort(), [200, 202]);
-  const recheckJobs = await Promise.all(rechecks.map((response) => response.json()));
-  assert.equal(recheckJobs[0].id, recheckJobs[1].id, "simultaneous recheck clicks return the existing job instead of duplicating it");
-  assert.equal(recheckJobs[0].personId, person.id);
-  assert.equal(recheckJobs[0].forceHistory, true);
+  // This person has no accounts, so its job can finish before a second HTTP
+  // request arrives. Real overlapping starts are covered with explicit state
+  // and discovery gates in sync-engine-concurrency.test.mjs, not socket timing.
+  const recheck = await request(`persons/${person.id}/recheck`, { confirm: true });
+  assert.equal(recheck.status, 202);
+  const recheckJob = await recheck.json();
+  assert.ok(recheckJob.id);
+  assert.equal(recheckJob.personId, person.id);
+  assert.equal(recheckJob.forceHistory, true);
   let recheckReport;
   for (let i = 0; i < 100; i++) {
-    recheckReport = await (await request(`sync-jobs/${recheckJobs[0].id}`)).json();
+    recheckReport = await (await request(`sync-jobs/${recheckJob.id}`)).json();
     if (!["queued", "running"].includes(recheckReport.status)) break;
     await new Promise((resolve) => setTimeout(resolve, 20));
   }

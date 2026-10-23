@@ -69,6 +69,25 @@ test("bilingual readmes use professional headings, matching screenshots and vali
   }
 });
 
+test("banner copy belongs to the corresponding README language section, not the shared artwork", async () => {
+  const readme = await readFile(new URL("../README.md", import.meta.url), "utf8");
+  const fallback = await readFile(new URL("../docs/README.en.md", import.meta.url), "utf8");
+  const sections = [...readme.matchAll(/<details name="readme-language"(?: open)?>([\s\S]*?)<\/details>/g)];
+  assert.equal(sections.length, 2);
+  const [chinese, english] = sections.map((match) => match[1]);
+  assert.match(readme, /^!\[Media Tracker\]\(docs\/images\/media-tracker-banner\.jpg\)/);
+  assert.match(fallback, /^!\[Media Tracker\]\(images\/media-tracker-banner\.jpg\)/);
+  assert.doesNotMatch(readme.split('<details name="readme-language"')[0], /Collect\. Organize\. Keep\.|照片与视频|Photos & video/);
+  assert.match(chinese, /集中采集，有序整理，妥善保存。/);
+  assert.match(chinese, /照片与视频 · 增量同步 · 本地去重/);
+  assert.doesNotMatch(chinese, /Collect\. Organize\. Keep\.|Photos & video/);
+  for (const text of [english, fallback]) {
+    assert.match(text, /Collect\. Organize\. Keep\./);
+    assert.match(text, /Photos & video · Incremental sync · Local deduplication/);
+    assert.doesNotMatch(text, /集中采集，有序整理，妥善保存。|照片与视频 · 增量同步/);
+  }
+});
+
 test("documentation raster assets have expected formats and a small total size", async () => {
   let total = 0;
   for (const file of documentationImages) {

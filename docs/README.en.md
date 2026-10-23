@@ -1,8 +1,12 @@
-![Media Tracker — Collect. Organize. Keep.](images/media-tracker-banner.jpg)
+![Media Tracker](images/media-tracker-banner.jpg)
 
 [简体中文](../README.md#user-content-readme-zh) · [English](../README.md#user-content-readme-en)
 
 # Media Tracker
+
+**Collect. Organize. Keep.**
+
+Photos & video · Incremental sync · Local deduplication
 
 A local media collection and management tool for Windows. Keep photos and videos from creators you follow in one place, ready to organize and find.
 

@@ -1,4 +1,4 @@
-![Media Tracker — Collect. Organize. Keep.](docs/images/media-tracker-banner.jpg)
+![Media Tracker](docs/images/media-tracker-banner.jpg)
 
 <a href="#user-content-readme-zh">简体中文</a> · <a href="#user-content-readme-en">English</a>
 
@@ -7,6 +7,10 @@
 <a name="readme-zh"></a>
 
 # Media Tracker · 采集工具
+
+**集中采集，有序整理，妥善保存。**
+
+照片与视频 · 增量同步 · 本地去重
 
 面向 Windows 的本地媒体采集与管理工具，将关注博主的照片、视频集中保存，便于持续整理与查找。
 
@@ -58,6 +62,10 @@
 <a name="readme-en"></a>
 
 # Media Tracker
+
+**Collect. Organize. Keep.**
+
+Photos & video · Incremental sync · Local deduplication
 
 A local media collection and management tool for Windows. Keep photos and videos from creators you follow in one place, ready to organize and find.
 
